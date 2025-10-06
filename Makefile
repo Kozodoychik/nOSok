@@ -27,7 +27,6 @@ $(OUTPUT):
 	$(LD) $(LDFLAGS) obj/*.o
 
 clean:
-	echo "$(ASOBJ)"
 	rm -f obj/*
 	rm -f out/*
 	rm -rf iso
