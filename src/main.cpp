@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <drivers/video.h>
+#include <drivers/video.hpp>
 
 extern "C" void kmain() {
     nosok::video::putc({'n', 0x07});

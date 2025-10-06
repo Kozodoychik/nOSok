@@ -1,5 +1,5 @@
-#include <drivers/video.h>
-#include <drivers/io.h>
+#include <drivers/video.hpp>
+#include <drivers/io.hpp>
 
 namespace nosok {
     namespace video {
