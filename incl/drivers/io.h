@@ -1,6 +1,3 @@
-#ifndef DRIVERS_IO_H
-#define DRIVERS_IO_H
-
 #include <stdint.h>
 
 namespace nosok {
@@ -18,4 +15,3 @@ namespace nosok {
         }
     }
 }
-#endif

@@ -1,5 +1,3 @@
-#pragma once
-
 #include <stdint.h>
 
 #define VGA_BASE 0xC03FF000     // Виртуальный адрес (физический: 0xB8000)
