@@ -7,7 +7,7 @@ CXX=i686-elf-g++
 LD=$(CXX)
 
 ASFLAGS=-f elf
-CXXFLAGS=-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iincl
+CXXFLAGS=-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iincl -g
 LDFLAGS=-T link.ld -o $(OUTPUT) -ffreestanding -O2 -nostdlib -lgcc
 
 ASFILES=$(shell find src -type f -name *.asm)
@@ -46,7 +46,10 @@ iso:
 	rm -rf iso
 
 run:
-	qemu-system-i386 -kernel $(OUTPUT)
+	qemu-system-i386 -kernel $(OUTPUT) -d int --no-reboot
 
 run-iso:
-	qemu-system-i386 -cdrom $(ISOOUTPUT)
+	qemu-system-i386 -cdrom $(ISOOUTPUT) -d int --no-reboot
+
+run-gdb:
+	qemu-system-i386 -kernel $(OUTPUT) -d int --no-reboot -s -S

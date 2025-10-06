@@ -5,6 +5,9 @@ extern _kernel_end
 
 global _start
 
+global stack_end
+global page_directory
+
 extern kmain
 
 ; Включаем страничную память (paging) и отображаем ядро в 0xC0000000
