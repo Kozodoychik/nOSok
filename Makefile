@@ -1,5 +1,6 @@
 
 OUTPUT=out/kernel
+ISOOUTPUT=out/os.iso
 
 AS=nasm
 CXX=i686-elf-g++
@@ -14,7 +15,7 @@ CXXFILES=$(shell find src -type f -name *.cpp)
 CXXOBJ=$(CXXFILES:src/%.cpp=obj/%.o)
 ASOBJ=$(ASFILES:src/%.asm=obj/%.o)
 
-all: clean $(ASOBJ) $(CXXOBJ) $(OUTPUT)
+all: clean $(ASOBJ) $(CXXOBJ) $(OUTPUT) iso
 
 obj/%.o: src/%.asm
 	$(AS) $< $(ASFLAGS) -o obj/$(notdir $@)
@@ -31,5 +32,22 @@ clean:
 	rm -f out/*
 	rm -rf iso
 
+iso:
+	mkdir iso
+	mkdir iso/boot
+	mkdir iso/boot/grub
+	
+	cp $(OUTPUT) iso/boot/kernel
+	
+	echo 'menuentry "nOSok" {' >> iso/boot/grub/grub.cfg
+	echo '	multiboot /boot/kernel' >> iso/boot/grub/grub.cfg
+	echo '}' >> iso/boot/grub/grub.cfg
+
+	grub-mkrescue --output $(ISOOUTPUT) iso
+	rm -rf iso
+
 run:
-	qemu-system-i386 -kernel out/kernel
+	qemu-system-i386 -kernel $(OUTPUT)
+
+run-iso:
+	qemu-system-i386 -cdrom $(ISOOUTPUT)
