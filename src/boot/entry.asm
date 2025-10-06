@@ -7,7 +7,7 @@ global _start
 
 extern kmain
 
-; Enable paging and map the kernel to 0xC0000000
+; Включаем страничную память (paging) и отображаем ядро в 0xC0000000
 
 _start:
     mov edi, page_table_0
@@ -49,8 +49,6 @@ _start:
     jmp ecx
 
 section .text
-
-; Higher half kernel entry
 
 _k_start:
     mov esp, stack_end
