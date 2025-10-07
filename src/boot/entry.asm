@@ -18,11 +18,11 @@ _start:
     mov esi, 0
     mov ecx, 1023
 
-    .kernel_bounds_check:
-        cmp esi, _kernel_start
-        jl .skip
-        cmp esi, _kernel_end
-        jge .end
+    .loop:
+        ;cmp esi, _kernel_start
+        ;jl .skip
+        ;cmp esi, _kernel_end
+        ;jge .end
 
         mov eax, esi
         add eax, 0x3
@@ -31,7 +31,7 @@ _start:
     .skip:
         add esi, 4096
         add edi, 4
-        loop .kernel_bounds_check
+        loop .loop
 
     .end:
     mov dword [(page_table_0) + (1023 * 4)], 0xB8003 
