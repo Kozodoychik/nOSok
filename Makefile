@@ -1,8 +1,10 @@
 
 OUTPUT=out/kernel
 ISOOUTPUT=out/os.iso
+HDDOUTPUT=out/hdd.img
 
 AS=nasm
+CC=gcc
 CXX=i686-elf-g++
 LD=$(CXX)
 
@@ -10,12 +12,16 @@ ASFLAGS=-f elf
 CXXFLAGS=-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iincl -g
 LDFLAGS=-T link.ld -o $(OUTPUT) -ffreestanding -O2 -nostdlib -lgcc
 
-ASFILES=$(shell find src -type f -name *.asm)
-CXXFILES=$(shell find src -type f -name *.cpp)
+ASFILES=$(shell find src/kernel -type f -name *.asm)
+CXXFILES=$(shell find src/kernel -type f -name *.cpp)
 CXXOBJ=$(CXXFILES:src/%.cpp=obj/%.o)
 ASOBJ=$(ASFILES:src/%.asm=obj/%.o)
 
-all: clean $(ASOBJ) $(CXXOBJ) $(OUTPUT) iso
+all: clean bootloader $(ASOBJ) $(CXXOBJ) $(OUTPUT) iso-grub img
+
+bootloader:
+	$(AS) src/boot/legacy/stage1.asm -f bin -o out/stage1.bin
+	$(AS) src/boot/legacy/nosokldr.asm -f bin -o out/nosokldr.bin
 
 obj/%.o: src/%.asm
 	$(AS) $< $(ASFLAGS) -o obj/$(notdir $@)
@@ -31,18 +37,26 @@ clean:
 	rm -f out/*
 	rm -rf iso
 
-iso:
-	mkdir iso
-	mkdir iso/boot
-	mkdir iso/boot/grub
-	
+img:
+	dd if=/dev/zero of=$(HDDOUTPUT) bs=512 count=65536
+
+	mkfs.fat -F 16 $(HDDOUTPUT)
+
+	dd if=out/stage1.bin of=$(HDDOUTPUT) bs=512 count=1 conv=notrunc
+
+	mcopy -i $(HDDOUTPUT) out/nosokldr.bin ::/nosokldr.bin
+	mcopy -i $(HDDOUTPUT) $(OUTPUT) ::kernel
+
+iso-grub:
+	mkdir -p iso/boot/grub
+
 	cp $(OUTPUT) iso/boot/kernel
-	
+
 	echo 'menuentry "nOSok" {' >> iso/boot/grub/grub.cfg
 	echo '	multiboot /boot/kernel' >> iso/boot/grub/grub.cfg
 	echo '}' >> iso/boot/grub/grub.cfg
 
-	grub-mkrescue --output $(ISOOUTPUT) iso
+	grub-mkrescue --output $(ISOOUTPUT) iso -- -hfsplus off
 	rm -rf iso
 
 run:
@@ -53,3 +67,11 @@ run-iso:
 
 run-gdb:
 	qemu-system-i386 -kernel $(OUTPUT) -d int --no-reboot -s -S
+
+run-img:
+	qemu-system-i386 -hdd out/hdd.img
+
+install-dependencies:
+	sudo apt install grub-common
+	sudo apt install grub-pc-bin
+	sudo apt install grub-efi-amd64-bin
