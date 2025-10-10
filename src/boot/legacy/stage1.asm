@@ -1,6 +1,6 @@
 FAT_ADDR            equ 0x8000
 ROOT_DIR_ADDR_SEG   equ 0x2000
-NOSOKLDR_ADDR_SEG   equ 0xc000
+NOSOKLDR_ADDR_SEG   equ 0x4000
 
 bits 16
 org 0x7c00
@@ -85,8 +85,6 @@ start:
     ; Ищем файл
     xor si, si
     mov di, stage2_file
-
-
     .find_loop:
         mov cx, 11
         mov si, bx
@@ -99,6 +97,7 @@ start:
         add bx, 32
         jmp .find_loop
 
+    ; Не нашли
     .not_found:
         xor ax, ax
         mov ds, ax
@@ -107,12 +106,73 @@ start:
         call print
         jmp $
 
+    ; Нашли
     .found:
-        mov ah,0eh
-        mov al,'F'
-        int 10h
-        mov bx, 0xffff
-        jmp $
+        mov si, bx
+        
+        mov ax, ds
+        mov es, ax
+        xor ax, ax
+        mov ds, ax
+
+        mov al, [secs_per_cluster]
+        
+        mov cx, [es:si+1ah]
+    
+        shl cx, 1
+        xor si, si
+        add si, cx
+        shr cx, 1
+
+        sub cx, 2
+        xor dx, dx
+        mul cx
+
+        mov bx, NOSOKLDR_ADDR_SEG
+        mov es, bx
+        xor bx, bx
+        mov ds, bx
+        
+        ; Загружаем кластеры в память
+        .loop:
+            add ax, [first_data_sect]
+            xor cx, cx
+            mov cl, [secs_per_cluster]
+            call disk_read
+            cmp word [si], 0xfff8
+            jge .stop
+            
+            xor ax, ax
+            mov al, [secs_per_cluster]
+            mul word [bytes_per_sector]
+            add bx, ax
+            xor ax, ax
+            mov al, [secs_per_cluster]
+
+
+            push bx
+            mov bx, FAT_ADDR
+            mov ds, bx
+            mov cx, [si]
+            xor bx, bx
+            mov ds, bx
+            pop bx
+
+            shl cx, 1
+            mov si, cx
+            shr cx, 1
+
+            sub cx, 2
+            xor dx, dx
+            mul cx
+
+            mov cx, [secs_per_cluster]
+
+            jmp .loop
+
+        ; Прыгаем в загрузчик
+        .stop:
+            jmp NOSOKLDR_ADDR_SEG:0
 
 
 ; ВХОД: ax - LBA
