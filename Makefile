@@ -9,7 +9,7 @@ CXX=i686-elf-g++
 LD=$(CXX)
 
 ASFLAGS=-f elf
-CXXFLAGS=-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iincl -g
+CXXFLAGS=-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iincl
 LDFLAGS=-T link.ld -o $(OUTPUT) -ffreestanding -O2 -nostdlib -lgcc
 
 ASFILES=$(shell find src/kernel -type f -name *.asm)
@@ -33,8 +33,10 @@ $(OUTPUT):
 	$(LD) $(LDFLAGS) obj/*.o
 
 clean:
-	rm -f obj/*
-	rm -f out/*
+	rm -f obj/*.o
+	rm -f out/*.bin
+	rm -f out/*.img
+	rm -f out/*.iso
 	rm -rf iso
 
 img:

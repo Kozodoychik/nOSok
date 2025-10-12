@@ -1,6 +1,4 @@
-FAT_ADDR            equ 0x8000
-ROOT_DIR_ADDR_SEG   equ 0x2000
-NOSOKLDR_ADDR_SEG   equ 0x4000
+%include "src/boot/legacy/addrs.inc"
 
 bits 16
 org 0x7c00
@@ -39,7 +37,7 @@ start:
 
     ; Читаем FAT
     mov ax, [reserved_secs]
-    mov bx, FAT_ADDR
+    mov bx, FAT_ADDR_SEG
     mov es, bx
     xor bx, bx
     mov cx, [secs_per_fat]
@@ -93,7 +91,6 @@ start:
         mov di, stage2_file
         repe cmpsb
         jz .found
-    .skip:
         add bx, 32
         jmp .find_loop
 
@@ -128,16 +125,18 @@ start:
         xor dx, dx
         mul cx
 
-        mov bx, NOSOKLDR_ADDR_SEG
-        mov es, bx
         xor bx, bx
         mov ds, bx
+        mov es, bx
+
+        mov bx, NOSOKLDR_ADDR
         
         ; Загружаем кластеры в память
         .loop:
             add ax, [first_data_sect]
             xor cx, cx
             mov cl, [secs_per_cluster]
+            ;jmp $
             call disk_read
             cmp word [si], 0xfff8
             jge .stop
@@ -151,7 +150,7 @@ start:
 
 
             push bx
-            mov bx, FAT_ADDR
+            mov bx, FAT_ADDR_SEG
             mov ds, bx
             mov cx, [si]
             xor bx, bx
@@ -172,7 +171,9 @@ start:
 
         ; Прыгаем в загрузчик
         .stop:
-            jmp NOSOKLDR_ADDR_SEG:0
+            mov dl, [bootdev]
+            mov cx, [first_data_sect]
+            jmp NOSOKLDR_ADDR
 
 
 ; ВХОД: ax - LBA
@@ -221,6 +222,6 @@ bootdev: db 0
 first_data_sect: dw 0
 
 stage2_file: db "NOSOKLDRBIN"
-not_found_msg: db "NOSOKLDR.BIN not found", 0ah, 0dh, 0
+not_found_msg: db "/NOSOKLDR.BIN not found", 0ah, 0dh, 0
 times 510-($-$$) db 0
 db 0x55, 0xaa
