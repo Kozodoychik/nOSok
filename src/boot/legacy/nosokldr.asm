@@ -91,16 +91,15 @@ _start:
 
     jmp $
 
-
 ; ВХОД: ax - LBA
 ; ВЫХОД: ax - C, bx - H, cx - S
 lba2chs:
-    mov cx, [0x7c18]     ; secs_per_track
+    mov cx, [0x7c18] ; secs_per_track
     xor dx, dx
     div cx
     mov cx, dx
     inc cx
-    mov bx, [0x7c1a]     ; head_count
+    mov bx, [0x7c1a] ; head_count
     xor dx, dx
     div bx
     mov bx, dx
@@ -108,9 +107,11 @@ lba2chs:
 
 ; ВХОД: ax - LBA, es:bx - буффер, cx - кол-во секторов
 disk_read:
-    pusha
     push bx
     push cx
+    xor ah, ah
+    xor bx, bx
+    mov ds, bx
     call lba2chs
     mov dh, bl
     mov ch, al
@@ -119,8 +120,18 @@ disk_read:
     mov ah, 02h
     mov dl, [bootdev]
     int 13h
-    popa
+    jc .error
     ret
+
+    .error:
+        xor bx, bx
+        mov ds, bx
+        mov si, disk_read_err
+        call print
+        mov al, ah
+        xor ah, ah
+        call print_hex
+        jmp $
 
 print:
     mov ah, 0eh
@@ -134,10 +145,28 @@ print:
     .ret:
         ret
 
+print_hex:
+    pusha
+    shl ax, 4
+    shr al, 4
+    xchg ah, al
+    mov bx, hex_digits
+    xlat
+    push ax
+    mov ah, 0eh
+    int 10h
+    pop ax
+    xchg ah, al
+    xlat
+    mov ah, 0eh
+    int 10h
+    popa
+    ret
+
 bootdev: db 0
 first_data_sect: dw 0
 
-; НЕ ПРОВЕРЕНО!!! Виртуальные машины не поддерживают EDID/DDC
+; Получаем разрешение монитора
 setup_edid:
     mov ax, 0x4f15
     mov bx, 1
@@ -146,11 +175,11 @@ setup_edid:
     mov di, edid
     int 10h
 
-    cmp ax, 0x004f
+    cmp dword [di], 0xffffff00
     jne .not_supported
 
-    test cx, 1
-    jz .not_supported
+    cmp ax, 0x004f
+    jne .not_supported
 
     mov al, [edid+0x38]
     mov ah, [edid+0x3a]
@@ -202,6 +231,10 @@ setup_video:
         cmp ax, [display_mode.height]
         jne .skip
 
+        mov al, [vesa_modeinfo.bpp]
+        cmp al, [display_mode.bpp]
+        jne .skip
+
         mov bx, cx
         mov ax, 0x4f02
         int 10h
@@ -218,9 +251,6 @@ setup_video:
         inc cx
         jmp .loop
 
-    .not_supported:
-        mov si, vbe_not_supported
-        call print
     .ret:
         ret
 
@@ -249,6 +279,9 @@ pmode_start:
     mov fs, ax
     mov gs, ax
 
+    mov edi, [display_mode.fb]
+    mov dword [edi], 0xffffffff
+    mov dword [edi+4], 0xffffffff
 
     hlt
     jmp $
@@ -277,17 +310,19 @@ gdtr:
     dw (gdt_end - gdt_start) - 1
     dd gdt_start
 
+hex_digits: db "0123456789ABCDEF"
 welcome_msg: db "Welcome to nOSok BootLoader!", 0x0a, 0x0d, 0
-kernel_not_found_msg: db "/KERNEL not found", 0x0a, 0x0d, 0
-ddc_not_supported: db "VESA DDC not supported", 0x0a, 0x0d, 0
+kernel_not_found_msg: db "KERNEL not found", 0x0a, 0x0d, 0
+ddc_not_supported: db "VBE/DDC not supported", 0x0a, 0x0d, 0
 vbe_not_supported: db "VBE not supported", 0x0a, 0x0d, 0
+disk_read_err: db "Disk error ", 0
 
 kernel_file: db "KERNEL     "
 
 display_mode:
     .width:     dw 800
     .height:    dw 600
-    .bpp:       db 24
+    .bpp:       db 32
     .fb:        dd 0
 
 section .bss

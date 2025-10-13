@@ -17,7 +17,7 @@ root_entry_count:   dw 512
 secs_count:         dw 65535
 media_descr:        db 0xf8
 secs_per_fat:       dw 64
-secs_per_track:     dw 63   ; QEMU почему-то считает, что в дорожке 63 сектора, в отличии от 32 в образе mkfs.fat
+secs_per_track:     dw 32
 head_count:         dw 64
 
 hidden_secs:        dd 0
@@ -35,6 +35,24 @@ sys_id:             db "FAT16   "
 start:
     mov [bootdev], dl
 
+    ; Крайне бесполезный код для ВМ, но нужный для работы на реальном железе
+    ; Сегментные регистры на реальных системах могут не подчищаться перед прыжком в загрузчик
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov gs, ax
+    mov fs, ax
+
+    ; Прикол: геометрия диска в BIOS почти всегда не совпадает со значениями в BPB
+    ; Так что получаем эти значения и используем уже их
+    mov ah, 08h
+    int 13h
+    inc dh
+    mov byte [head_count], dh
+    and cl, 0x3f
+    mov byte [secs_per_track], cl
+
     ; Читаем FAT
     mov ax, [reserved_secs]
     mov bx, FAT_ADDR_SEG
@@ -42,7 +60,6 @@ start:
     xor bx, bx
     mov cx, [secs_per_fat]
     call disk_read
-
 
     xor dx, dx
     xor ax, ax
@@ -149,13 +166,11 @@ start:
             mov al, [secs_per_cluster]
 
 
-            push bx
-            mov bx, FAT_ADDR_SEG
-            mov ds, bx
+            mov dx, FAT_ADDR_SEG
+            mov ds, dx
             mov cx, [si]
-            xor bx, bx
-            mov ds, bx
-            pop bx
+            xor dx, dx
+            mov ds, dx
 
             shl cx, 1
             mov si, cx
@@ -194,6 +209,9 @@ lba2chs:
 disk_read:
     push bx
     push cx
+    xor ah, ah
+    xor bx, bx
+    mov ds, bx
     call lba2chs
     mov dh, bl
     mov ch, al
@@ -202,10 +220,20 @@ disk_read:
     mov ah, 02h
     mov dl, [bootdev]
     int 13h
+    jc .error
     ret
 
+    .error:
+        xor bx, bx
+        mov ds, bx
+        mov si, disk_read_err
+        call print
+        mov al, ah
+        xor ah, ah
+        call print_hex
+        jmp $
+
 print:
-    push si
     mov ah, 0eh
     .loop:
         mov al, [si]
@@ -215,13 +243,32 @@ print:
         inc si
         jmp .loop
     .ret:
-        pop si
         ret
+
+print_hex:
+    pusha
+    shl ax, 4
+    shr al, 4
+    xchg ah, al
+    mov bx, hex_digits
+    xlat
+    push ax
+    mov ah, 0eh
+    int 10h
+    pop ax
+    xchg ah, al
+    xlat
+    mov ah, 0eh
+    int 10h
+    popa
+    ret
 
 bootdev: db 0
 first_data_sect: dw 0
 
+hex_digits: db "0123456789ABCDEF"
 stage2_file: db "NOSOKLDRBIN"
 not_found_msg: db "/NOSOKLDR.BIN not found", 0ah, 0dh, 0
+disk_read_err: db "Disk error ", 0
 times 510-($-$$) db 0
 db 0x55, 0xaa
