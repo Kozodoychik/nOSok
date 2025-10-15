@@ -20,8 +20,6 @@ namespace nosok {
                 int pd_index = (vaddr & 0xFFC00000) >> 22;
                 int pt_index = (vaddr & 0x003FF000) >> 12;
 
-                uint32_t paddr_aligned = paddr & 0xFFFFF000;
-
                 if (!current_page_dir[pd_index].present) {
                     page_table_entry* frame = (page_table_entry*)nosok::mem::frames::alloc();
                     
@@ -51,7 +49,7 @@ namespace nosok {
 
                 page_table = (page_table_entry*)(current_page_dir[pd_index].address << 12);
                 
-                page_table[pt_index] = {0};
+                ((uint32_t*)page_table)[pt_index] = 0;
 
                 asm (
                     "invlpg (%0)":
@@ -62,9 +60,7 @@ namespace nosok {
 
             }
 
-            uint32_t vaddr_to_paddr(uint32_t paddr) {
-                
-            }
+            
 
             void set_cr3(page_dir_entry* pd) {
                 asm (

@@ -4,12 +4,13 @@ ISOOUTPUT=out/os.iso
 HDDOUTPUT=out/hdd.img
 
 AS=nasm
-CC=gcc
+CC=i686-elf-gcc
 CXX=i686-elf-g++
 LD=$(CXX)
 
 ASFLAGS=-f elf
 CXXFLAGS=-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iincl
+CFLAGS=-ffreestanding -O2 -Wall -Wextra
 LDFLAGS=-T link.ld -o $(OUTPUT) -ffreestanding -O2 -nostdlib -lgcc
 
 ASFILES=$(shell find src/kernel -type f -name *.asm)
@@ -21,7 +22,9 @@ all: clean bootloader $(ASOBJ) $(CXXOBJ) $(OUTPUT) iso-grub img
 
 bootloader:
 	$(AS) src/boot/legacy/stage1.asm -f bin -o out/stage1.bin
-	$(AS) src/boot/legacy/nosokldr.asm -f bin -o out/nosokldr.bin
+	$(AS) src/boot/legacy/nosokldr.asm -f elf -o obj/nosokldr_asm.o
+	$(CC) $(CFLAGS) -c src/boot/legacy/nosokldr.c -o obj/nosokldr_c.o
+	$(CC) -T src/boot/legacy/link.ld -ffreestanding -O2 -nostdlib -o out/nosokldr.bin obj/nosokldr_asm.o obj/nosokldr_c.o
 
 obj/%.o: src/%.asm
 	$(AS) $< $(ASFLAGS) -o obj/$(notdir $@)

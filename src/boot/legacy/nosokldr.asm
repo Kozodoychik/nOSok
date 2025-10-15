@@ -1,7 +1,11 @@
 %include "src/boot/legacy/addrs.inc"
 
+extern ldrmain
+
+global _start
+global display_mode
+
 bits 16
-org 0x4000
 section .text
 
 ; Загружаем ядро
@@ -279,9 +283,7 @@ pmode_start:
     mov fs, ax
     mov gs, ax
 
-    mov edi, [display_mode.fb]
-    mov dword [edi], 0xffffffff
-    mov dword [edi+4], 0xffffffff
+    call ldrmain
 
     hlt
     jmp $

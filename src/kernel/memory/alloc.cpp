@@ -12,7 +12,7 @@ namespace nosok {
             heap_top->size = size;
         }
 
-        void* kmalloc(int size) {
+        void* kmalloc(unsigned int size) {
             heap_block_header_t* result = 0;
 
             for (heap_block_header_t* chunk = heap_top; chunk != 0 && result == 0; chunk = chunk->next) {
@@ -40,10 +40,7 @@ namespace nosok {
 
         }
 
-        // TODO
-        void kfree(void* ptr) {
-
-        }
+        // TODO: kfree
 
     }
 }

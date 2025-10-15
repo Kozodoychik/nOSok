@@ -31,13 +31,13 @@ namespace nosok {
             }
 
             void init() {
-                for (int i = 0; i*4096 < (unsigned int)&_kernel_end + 0x10000; i++) {
+                for (unsigned int i = 0; i*4096 < (unsigned int)&_kernel_end + 0x10000; i++) {
                     _mark_as_owned(i);
                 }
             }
 
             void* alloc() {
-                for (int i = 0; i < 8 * FRAME_BITMAP_SIZE; i++) {
+                for (unsigned int i = 0; i < 8 * FRAME_BITMAP_SIZE; i++) {
                     if (!_get(i)) {
                         _mark_as_owned(i);
                         return (void*)(i * 4096);

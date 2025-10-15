@@ -14,7 +14,7 @@ namespace nosok {
 
         void heap_allocator_init(void* base, uint32_t size);
 
-        void* kmalloc(int size);
+        void* kmalloc(unsigned int size);
 
         // TODO
         void kfree(void* ptr);
