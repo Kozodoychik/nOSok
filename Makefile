@@ -46,7 +46,7 @@ clean:
 img:
 	dd if=/dev/zero of=$(HDDOUTPUT) bs=512 count=65536
 
-	mkfs.fat -F 16 $(HDDOUTPUT)
+	sudo mkfs.fat -F 16 $(HDDOUTPUT)
 
 	dd if=out/stage1.bin of=$(HDDOUTPUT) bs=512 count=1 conv=notrunc
 
