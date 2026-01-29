@@ -12,7 +12,7 @@ LD=$(CC)
 
 ASFLAGS=-f elf
 CXXFLAGS=-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Iincl
-CFLAGS=-ffreestanding -O2 -Wall -Wextra
+CFLAGS=-ffreestanding -O2 -Wall -Wextra -Iincl
 LDFLAGS=-T link.ld -o $(OUTPUT) -ffreestanding -O2 -nostdlib -lgcc
 
 ASFILES=$(shell find src/kernel -type f -name *.asm)
