@@ -28,15 +28,12 @@ void ldrmain(void* kernel_file, display_mode* disp_mode) {
     }
 
     // Получаем адрес таблицы заголовков программы
-    Elf32_Phdr* elf_phdr = (Elf32_Phdr*)((uint32_t)kernel_file + elf_header->e_phoff);
-
-    // Число записей в таблице
-    unsigned int phnum = elf_header->e_phnum; 
+    Elf32_Phdr* elf_phdr = (Elf32_Phdr*)(kernel_file + elf_header->e_phoff);
 
     // Копируем данные по физическим адресам
-    for (unsigned int i = 0; i < phnum; i++) {
+    for (unsigned int i = 0; i < elf_header->e_phnum; i++) {
         // Смещение данных в файле
-        void* offset = (void*)((uint32_t)kernel_file + elf_phdr[i].p_offset); 
+        void* offset = kernel_file + elf_phdr[i].p_offset; 
 
         memcpy((void*)elf_phdr[i].p_paddr, offset, elf_phdr[i].p_filesz);
     }

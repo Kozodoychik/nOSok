@@ -41,9 +41,7 @@ clean:
 	rm -f obj/*.o
 	rm -f obj/kernel/*.o
 	rm -f out/kernel
-	rm -f out/*.bin
-	rm -f out/*.img
-	rm -f out/*.iso
+	rm -f out/*.*
 	rm -rf iso
 
 img:
@@ -64,3 +62,6 @@ run-gdb:
 
 run-img:
 	qemu-system-i386 -hdd out/hdd.img
+
+convert-qcow2:
+	qemu-img convert $(HDDOUTPUT) -O qcow2 $(HDDOUTPUT:%.img=%.qcow2)

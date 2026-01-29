@@ -1,4 +1,5 @@
 kernel
 os.iso
 hdd.img
+hdd.qcow2
 *.bin
