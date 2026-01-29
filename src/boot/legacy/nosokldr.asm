@@ -89,7 +89,7 @@ _start:
         mov es, ax
 
         call setup_edid
-        call setup_video
+        ;call setup_video
 
         jmp setup_pmode
 
@@ -283,6 +283,12 @@ pmode_start:
     mov fs, ax
     mov gs, ax
 
+
+    mov eax, display_mode
+    push eax
+    mov eax, KERNEL_FILE_SEG
+    shl eax, 4
+    push eax
     call ldrmain
 
     hlt

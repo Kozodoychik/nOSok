@@ -1,11 +1,13 @@
 
+TARGET=i686-elf
+
 OUTPUT=out/kernel
 ISOOUTPUT=out/os.iso
 HDDOUTPUT=out/hdd.img
 
 AS=nasm
-CC=i686-elf-gcc
-CXX=i686-elf-g++
+CC=$(TARGET)-gcc
+CXX=$(TARGET)-g++
 LD=$(CC)
 
 ASFLAGS=-f elf
@@ -38,6 +40,7 @@ $(OUTPUT):
 clean:
 	rm -f obj/*.o
 	rm -f obj/kernel/*.o
+	rm -f out/kernel
 	rm -f out/*.bin
 	rm -f out/*.img
 	rm -f out/*.iso

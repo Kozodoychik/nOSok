@@ -12,20 +12,8 @@ extern "C" void kmain() {
     nosok::mem::paging::init();
     nosok::mem::heap_allocator_init((void*)&stack_end, 0x100000);
 
+    nosok::video::set_cursor_pos({0, 0});
+    nosok::io::printf("nOSok Test\n%x", 0x55aa);
 
-    nosok::io::printf("nOSok Test\nzhe %x", 0x55aa);
-
-    /*nosok::video::putc({'n', 0x07});
-    nosok::video::putc({'O', 0x07});
-    nosok::video::putc({'S', 0x07});
-    nosok::video::putc({'o', 0x07});
-    nosok::video::putc({'k', 0x07});
-
-    nosok::video::putc({'\n', 0x07});
-
-    nosok::video::putc({'T', 0x07});
-    nosok::video::putc({'e', 0x07});
-    nosok::video::putc({'s', 0x07});
-    nosok::video::putc({'t', 0x07});*/
     return;
 }
