@@ -1,14 +1,38 @@
 #include <stdint.h>
 #include <elf.h>
 #include <std/string.h>
-#include <boot/display.h>
+#include <boot/vesa.h>
 
 
-/*
-    kernel_file  - указатель на образ ядра
-    disp_mode - информация о видеорежиме
-*/
-void ldrmain(void* kernel_file, display_mode* disp_mode) {
+void setup_display() {
+    vesa_modeinfo mode;
+    edid_record edid;
+
+    bios_get_edid(&edid);
+
+    if (edid.padding != 0x00ffffffffffff00) {
+        bios_set_vesa_mode(0x4115);
+        return;
+    }
+
+    uint16_t width = edid.timing_descr1.h_active_time | ((edid.timing_descr1.h_active_blank_time & 0xf0) << 4);
+    uint16_t height = edid.timing_descr1.v_active_time | ((edid.timing_descr1.v_active_blank_time & 0xf0) << 4);
+
+    for (uint16_t m = 0x4100; m < 0xffff; m++) {
+        bios_get_vesa_modeinfo(m, &mode);
+
+        if (mode.width == width && mode.height == height && mode.bpp == 32) {
+            bios_set_vesa_mode(m);
+            return;
+        }
+    }
+
+    bios_set_vesa_mode(0x4115);
+}
+
+void ldrmain(void* kernel_file) {
+
+    setup_display();
 
     // Получаем заголовок в самом начале файла
     Elf32_Ehdr* elf_header = (Elf32_Ehdr*)(kernel_file);

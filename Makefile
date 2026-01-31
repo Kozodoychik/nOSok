@@ -61,7 +61,7 @@ run-gdb:
 	qemu-system-i386 -kernel $(OUTPUT) -d int --no-reboot -s -S
 
 run-img:
-	qemu-system-i386 -hdd out/hdd.img
+	qemu-system-i386 -hdd out/hdd.img -d int --no-reboot 
 
 convert-qcow2:
 	qemu-img convert $(HDDOUTPUT) -O qcow2 $(HDDOUTPUT:%.img=%.qcow2)
