@@ -4,13 +4,7 @@
 void* memcpy(void* dst, void* src, unsigned int size) {
     void* old_dst = dst;
 
-    //asm volatile ("rep movsb" : "+D"(dst), "+S"(src), "+c"(size) : : "memory");
-
-    uint8_t* dst8 = (uint8_t*)dst;
-    uint8_t* src8 = (uint8_t*)src;
-
-    for (unsigned int i = 0; i < size; i++)
-        dst8[i] = src8[i];
+    asm volatile ("rep movsb" : "+D"(dst), "+S"(src), "+c"(size) : : "memory");
 
     return old_dst;
 }
@@ -26,4 +20,20 @@ int memcmp(void* lhs, void* rhs, unsigned int count) {
     }
 
     return 0;
+}
+
+void* memset(void* dst, uint8_t c, unsigned int count) {
+    void* old_dst = dst;
+
+    asm volatile ("rep stosb" : "=D"(dst), "=c"(count) : "0"(dst), "1"(count), "a"(c) : "memory");
+
+    return old_dst;
+}
+
+void* memset16(void* dst, uint16_t c, unsigned int count) {
+    void* old_dst = dst;
+
+    asm volatile ("rep stosw" : "=D"(dst), "=c"(count) : "D"(dst), "c"(count), "a"(c) : "memory");
+
+    return old_dst;
 }

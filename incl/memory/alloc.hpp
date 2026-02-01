@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+typedef typeof(sizeof(0)) size_t;
+
 namespace nosok {
     namespace mem {
 
@@ -16,8 +18,10 @@ namespace nosok {
 
         void* kmalloc(unsigned int size);
 
-        // TODO
         void kfree(void* ptr);
 
     }
 }
+
+void* operator new(size_t size);
+void operator delete(void* ptr);

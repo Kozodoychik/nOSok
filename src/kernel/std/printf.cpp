@@ -10,9 +10,17 @@ namespace nosok {
             for (const char* c = fmt; *c != 0; c++) {
                 switch (*c) {
                     case '%': {
+                        int format_param = 0;
+
+                        while (*(c+1) >= '0' && *(c+1) <= '9') {
+                            format_param *= 10;
+                            format_param += *(c+1) - '0';
+                            c++;
+                        }
+
                         switch (*(c+1)) {
                             case 'x': {
-                                print_hex(*(uint32_t*)va_args);
+                                print_hex(*(uint32_t*)va_args, format_param);
                             }
                         }
 
@@ -28,9 +36,19 @@ namespace nosok {
 
         char hex_digits[17] = "0123456789abcdef";
 
-        void print_hex(int val) {
-            for (int shift = 28; shift >= 0; shift -= 4) {
-                uint8_t nibble = (val >> shift) & 0xf;
+        void print_hex(uint32_t val, int padding) {
+            int chars = padding == 0 ? 0 : padding;
+            uint32_t tmp = val;
+
+            while (tmp != 0 && padding == 0) {
+                tmp >>= 4;
+                chars++;
+            }
+
+            if (val == 0 && padding == 0) chars = 1;
+
+            for (int c = chars-1; c >= 0; c--) {
+                uint8_t nibble = (val >> c*4) & 0xf;
                 nosok::video::putc({hex_digits[nibble], 0x07});
             }
         }

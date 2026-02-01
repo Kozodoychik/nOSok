@@ -27,6 +27,9 @@ namespace nosok {
         // Функции текстового режима
         void set_cursor_pos(cursor_pos_t pos);
         cursor_pos_t get_cursor_pos();
+
+        void clear();
+
         void putc(vga_character_t c);
 
     }

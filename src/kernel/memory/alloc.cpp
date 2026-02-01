@@ -40,7 +40,37 @@ namespace nosok {
 
         }
 
-        // TODO: kfree
+        void kfree(void* ptr) {
+            heap_block_header_t* block = (heap_block_header_t*)((uint32_t)ptr - sizeof(heap_block_header_t));
+
+            block->is_allocated = false;
+
+            if (block->prev != 0 && !block->prev->is_allocated) {
+                block->prev->next = block->next;
+                if (block->next != 0)
+                    block->next->prev = block->prev;
+
+                block->prev->size += block->size + sizeof(heap_block_header_t);
+
+                block = block->prev;
+            }
+
+            if (block->next != 0 && !block->next->is_allocated) {
+                block->size += block->next->size + sizeof(heap_block_header_t);
+                block->next = block->next->next;
+                
+                if (block->next != 0)
+                    block->next->prev = block;
+            }
+        }
 
     }
+}
+
+void* operator new(size_t size) {
+    return nosok::mem::kmalloc(size);
+}
+
+void operator delete(void* ptr) {
+    nosok::mem::kfree(ptr);
 }
