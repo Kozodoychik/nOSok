@@ -47,6 +47,9 @@ namespace nosok {
                 uint32_t bus;
                 uint32_t device;
                 uint32_t function;
+
+                uint16_t vendor_id;
+                uint16_t device_id;
             } device_info;
 
             class PCIDevice : public nosok::devices::Device {
