@@ -3,14 +3,21 @@ extern ldrmain
 
 global _start
 
+
 global bios_get_vesa_modeinfo
 global bios_set_vesa_mode
 global bios_get_edid
 
+global bios_drive_read
+
+
 bits 16
 section .text
 _start:
+    mov [boot_drive], dl
+
     cli
+    cld
 
     mov ax, 0x7c00
     mov sp, ax
@@ -100,6 +107,53 @@ bios_get_edid:
     pop ebp
     ret
 
+bios_drive_read:
+    push ebp
+    mov ebp, esp
+    pusha
+
+    call set_rmode
+    bits 16
+
+    mov ax, [ebp+8]
+    call lba2chs
+
+    push es
+    mov ch, al
+    mov dh, bl
+    mov dl, [boot_drive]
+    mov bx, [ebp+16]
+    mov ax, [ebp+18]
+    shl ax, 12
+    mov es, ax
+    mov al, [ebp+12]
+    mov ah, 02h
+    int 13h
+    pop es
+
+    call set_pmode
+    bits 32
+
+    popa
+    pop ebp
+    ret
+
+; ВХОД: ax - LBA
+; ВЫХОД: ax - C, bx - H, cx - S
+bits 16
+lba2chs:
+    mov cx, [0x7c18] ; secs_per_track
+    xor dx, dx
+    div cx
+    mov cx, dx
+    inc cx
+    mov bx, [0x7c1a] ; head_count
+    xor dx, dx
+    div bx
+    mov bx, dx
+    ret
+
+
 ; А это великие функции переключения между режимами
 
 ; set_rmode - переключение в реальный режим
@@ -152,6 +206,8 @@ set_pmode:
 
         ret
 
+
+boot_drive: db 0
 
 gdt_start:
     dq 0

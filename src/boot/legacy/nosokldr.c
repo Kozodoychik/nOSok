@@ -2,7 +2,11 @@
 #include <elf.h>
 #include <std/string.h>
 #include <boot/vesa.h>
+#include <boot/drive.h>
+#include <fs/fat.h>
 
+#define FAT_ADDR            0x8000
+#define KERNEL_IMAGE_ADDR   0x40000
 
 void setup_display() {
     vesa_modeinfo mode;
@@ -30,12 +34,41 @@ void setup_display() {
     bios_set_vesa_mode(0x4115);
 }
 
-void ldrmain(void* kernel_file) {
+void ldrmain() {
+    void* kernel_file = (void*)KERNEL_IMAGE_ADDR;
 
-    setup_display();
+    // Получаем BIOS Parameter Block (уже загружен)
+    fat_bpb* bpb = (fat_bpb*)0x7c00;
+
+    // Считаем первые сектора корневого каталога и данных
+    uint16_t root_sect = bpb->reserved_count + (bpb->fat_count * bpb->secs_per_fat);
+    uint16_t first_data_sect = root_sect + ((bpb->root_dir_entries * 32) / bpb->bytes_per_sector);
+
+    fat_directory_entry root_directory[512];
+
+    // Читаем FAT и корневой каталог
+    bios_drive_read(bpb->reserved_count, bpb->secs_per_fat, (void*)FAT_ADDR);
+    bios_drive_read(root_sect, 1, &root_directory);
+
+    // Ищем образ
+    for (uint32_t i = 0; i < bpb->root_dir_entries; i++) {
+        if (memcmp(root_directory[i].filename, "KERNEL     ", 11) == 0) {
+            uint16_t cluster = root_directory[i].first_cluster_lo;
+            uint32_t offset = 0;
+
+            // Читаем образ
+            while (cluster < 0xfff8) {
+                bios_drive_read(first_data_sect + ((cluster-2) * bpb->secs_per_cluster), bpb->secs_per_cluster, (kernel_file + offset));
+                cluster = *(((uint16_t*)FAT_ADDR) + cluster);
+                offset += bpb->secs_per_cluster * bpb->bytes_per_sector;
+            }
+        }
+    }
+
+    //setup_display();
 
     // Получаем заголовок в самом начале файла
-    Elf32_Ehdr* elf_header = (Elf32_Ehdr*)(kernel_file);
+    Elf32_Ehdr* elf_header = (Elf32_Ehdr*)kernel_file;
 
     // Проверка идентификации и некоторых параметров
     if (elf_header->e_ident[0] != ELFMAG0 || 
