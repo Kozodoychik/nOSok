@@ -8,10 +8,10 @@ extern uint8_t display_font[4096];
 namespace nosok {
     namespace video {
 
-        uint32_t* vga_mem = (uint32_t*)VGA_FRAMEBUFFER_BASE;
+        uint8_t* vga_mem = (uint8_t*)VGA_FRAMEBUFFER_BASE;
         cursor_pos_t cursor_pos;
 
-        int scr_w, scr_h, scr_bpp;
+        int scr_w, scr_h, scr_bpp; // ширина, высота, байт (!!!) на пиксель
 
         uint32_t _compute_vga_offset(cursor_pos_t pos) {
             return pos.y * scr_w + pos.x;
@@ -32,7 +32,9 @@ namespace nosok {
         }
 
         void put_pixel(cursor_pos_t pos, uint32_t color) {
-            vga_mem[pos.y * scr_w + pos.x] = color;
+            int bpp = scr_bpp;
+            for (int byte = 0; byte <= scr_bpp; byte++)
+                vga_mem[((pos.y * scr_w + pos.x) * scr_bpp) + byte] = (color >> (byte * 8)) & 0xff;
         }
 
         cursor_pos_t get_cursor_pos() {

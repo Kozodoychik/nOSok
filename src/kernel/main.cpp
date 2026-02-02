@@ -16,16 +16,13 @@ extern "C" void kmain(bootloader_info* boot_info) {
 
     nosok::video::init(boot_info->display_info.fb, boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp);
 
-
     nosok::video::clear();
 
     nosok::video::set_cursor_pos({0, 0});
 
-    nosok::video::put_pixel({0, 0}, 0x00ffffff);
-    nosok::video::put_pixel({1, 1}, 0x00ffffff);
-
     nosok::io::printf("nOSok is booting...\n");
     nosok::io::printf("framebuffer base: 0x%8x\n", boot_info->display_info.fb);
+    nosok::io::printf("w: 0x%x, h: 0x%x, bpp 0x%x\n", boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp);
 
     nosok::io::printf("PCI devices:\n");
     
