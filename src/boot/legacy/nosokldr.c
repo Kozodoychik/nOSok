@@ -59,7 +59,7 @@ void ldrmain() {
 
 	// Ищем образ
 	for (uint32_t i = 0; i < bpb->root_dir_entries; i++) {
-		if (memcmp(root_directory[i].filename, "KERNEL	 ", 11) == 0) {
+		if (memcmp(root_directory[i].filename, "KERNEL     ", 11) == 0) {
 			uint16_t cluster = root_directory[i].first_cluster_lo;
 			uint32_t offset = 0;
 
