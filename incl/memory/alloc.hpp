@@ -3,24 +3,24 @@
 typedef typeof(sizeof(0)) size_t;
 
 namespace nosok {
-    namespace mem {
+	namespace mem {
 
-        typedef struct heap_block_header_t {
+		typedef struct heap_block_header_t {
 
-            bool is_allocated;
-            uint32_t size;
-            heap_block_header_t* next;
-            heap_block_header_t* prev;
+			bool					is_allocated;
+			uint32_t				size;
+			heap_block_header_t*	next;
+			heap_block_header_t*	prev;
 
-        } heap_block_header_t;
+		} heap_block_header_t;
 
-        void heap_allocator_init(void* base, uint32_t size);
+		void heap_allocator_init(void* base, uint32_t size);
 
-        void* kmalloc(unsigned int size);
+		void* kmalloc(unsigned int size);
 
-        void kfree(void* ptr);
+		void kfree(void* ptr);
 
-    }
+	}
 }
 
 void* operator new(size_t size);

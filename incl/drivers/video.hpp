@@ -5,30 +5,30 @@
 #define VGA_CHAR_HEIGHT 16
 
 namespace nosok {
-    namespace video {
+	namespace video {
 
-        typedef struct {
-            unsigned int x;
-            unsigned int y;
-        } cursor_pos_t;
+		typedef struct {
+			unsigned int x;
+			unsigned int y;
+		} cursor_pos_t;
 
-        void init(void* framebuffer, unsigned int w, unsigned int h, unsigned int bpp, unsigned int pitch);
+		void init(void* framebuffer, unsigned int w, unsigned int h, unsigned int bpp, unsigned int pitch);
 
-        // TODO
-        void set_mode(int w, int h, int bpp, int flags);
+		// TODO
+		void set_mode(int w, int h, int bpp, int flags);
 
-        // TODO: Функции графического режима
-        void put_pixel(unsigned int x, unsigned int y, uint32_t color);
-        
-        // Функции текстового режима
-        void set_cursor_pos(cursor_pos_t pos);
-        cursor_pos_t get_cursor_pos();
+		// TODO: Функции графического режима
+		void put_pixel(unsigned int x, unsigned int y, uint32_t color);
+		
+		// Функции текстового режима
+		void set_cursor_pos(cursor_pos_t pos);
+		cursor_pos_t get_cursor_pos();
 
-        void scroll();
+		void scroll();
 
-        void clear();
+		void clear();
 
-        void putc(char c);
+		void putc(char c);
 
-    }
+	}
 }

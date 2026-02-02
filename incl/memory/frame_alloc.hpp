@@ -3,14 +3,14 @@
 #define FRAME_BITMAP_SIZE 0x10000
 
 namespace nosok {
-    namespace mem {
-        namespace frames {
+	namespace mem {
+		namespace frames {
 
-            void init();
+			void init();
 
-            void* alloc();
-            void free(void* addr);
+			void* alloc();
+			void free(void* addr);
 
-        }
-    }
+		}
+	}
 }

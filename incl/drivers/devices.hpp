@@ -4,22 +4,22 @@
 
 
 namespace nosok {
-    namespace devices {
+	namespace devices {
 	typedef enum {
 		BUS_NONE,
 		BUS_PCI,
 		BUS_USB
 	} bus_type;
 
-        class Device {
-            public:
-		bus_type bus;
+		class Device {
+		public:
+			bus_type bus;
 
-                Device();
-                ~Device();
-        };
+			Device();
+			~Device();
+		};
 
-        void init();
-        void register_driver(Device* drv);
-    }
+		void init();
+		void register_driver(Device* drv);
+	}
 }

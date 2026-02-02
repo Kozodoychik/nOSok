@@ -2,15 +2,15 @@ ENTRY(_start)
 OUTPUT_FORMAT(binary)
 
 SECTIONS {
-    
-    . = 0x4000;
+	
+	. = 0x4000;
 
-    .text : {
-        *(.text)
-    }
+	.text : {
+		*(.text)
+	}
 
-    .bss : {
-        *(.bss)
-    }
+	.bss : {
+		*(.bss)
+	}
 
 }

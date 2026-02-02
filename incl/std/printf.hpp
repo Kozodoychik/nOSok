@@ -1,10 +1,10 @@
 #include <stdint.h>
 
 namespace nosok {
-    namespace io {
+	namespace io {
 
-        void printf(const char* fmt, ...);
-        void print_hex(uint32_t val, int n);
-    
-    }
+		void printf(const char* fmt, ...);
+		void print_hex(uint32_t val, int n);
+	
+	}
 }
