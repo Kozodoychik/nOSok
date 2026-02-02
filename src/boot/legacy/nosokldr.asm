@@ -10,6 +10,7 @@ global bios_get_edid
 
 global bios_drive_read
 
+global boot_drive
 
 bits 16
 section .text

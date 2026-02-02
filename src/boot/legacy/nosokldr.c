@@ -3,20 +3,25 @@
 #include <std/string.h>
 #include <boot/vesa.h>
 #include <boot/drive.h>
+#include <boot/bootinfo.h>
 #include <fs/fat.h>
 
 #define FAT_ADDR            0x8000
 #define KERNEL_IMAGE_ADDR   0x40000
 
-void setup_display() {
+extern uint8_t boot_drive;
+
+vesa_modeinfo setup_display() {
     vesa_modeinfo mode;
     edid_record edid;
+
+    bios_get_vesa_modeinfo(0x115, &mode);
 
     bios_get_edid(&edid);
 
     if (edid.padding != 0x00ffffffffffff00) {
-        bios_set_vesa_mode(0x4115);
-        return;
+        bios_set_vesa_mode(0x115);
+        return mode;
     }
 
     uint16_t width = edid.timing_descr1.h_active_time | ((edid.timing_descr1.h_active_blank_time & 0xf0) << 4);
@@ -25,13 +30,15 @@ void setup_display() {
     for (uint16_t m = 0x4100; m < 0xffff; m++) {
         bios_get_vesa_modeinfo(m, &mode);
 
-        if (mode.width == width && mode.height == height && mode.bpp == 32) {
+        if (mode.width == width && mode.height == height && mode.bpp == 32 && mode.attrib & 0x80) {
             bios_set_vesa_mode(m);
-            return;
+            return mode;
         }
     }
 
-    bios_set_vesa_mode(0x4115);
+    bios_set_vesa_mode(0x115);
+
+    return mode;
 }
 
 void ldrmain() {
@@ -65,8 +72,6 @@ void ldrmain() {
         }
     }
 
-    //setup_display();
-
     // Получаем заголовок в самом начале файла
     Elf32_Ehdr* elf_header = (Elf32_Ehdr*)kernel_file;
 
@@ -96,9 +101,19 @@ void ldrmain() {
     }
 
     // Точка входа
-    void (*entry)() = (void*)elf_header->e_entry;
+    void (*entry)(bootloader_info*) = (void*)elf_header->e_entry;
 
-    entry();
+    vesa_modeinfo mode = setup_display();
+    bootloader_info boot_info;
+
+    boot_info.boot_drive = boot_drive;
+    
+    boot_info.display_info.w = mode.width;
+    boot_info.display_info.h = mode.height;
+    boot_info.display_info.bpp = mode.bpp;
+    boot_info.display_info.fb = (void*)mode.framebuffer;
+
+    entry(&boot_info);
 
     return;
 }

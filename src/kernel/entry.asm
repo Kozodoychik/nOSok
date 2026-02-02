@@ -14,11 +14,16 @@ global _start
 global stack_end
 global page_directory
 
+global display_font
+
 extern kmain
 
 ; Включаем страничную память (paging) и отображаем ядро в 0xC0000000
 
 _start:
+    mov eax, [esp+4]
+    mov [boot_info_ptr], eax
+
     mov edi, page_table_0
 
     mov esi, 0
@@ -57,15 +62,23 @@ _start:
     mov ecx, _k_start
     jmp ecx
 
+boot_info_ptr: dd 0
+
 section .text
 
 _k_start:
     mov esp, stack_end
 
+    mov eax, [boot_info_ptr]
+    push eax
+
     call kmain
 
     cli
     hlt
+
+section .data
+display_font: incbin "src/kernel/res/font.bin"
 
 section .boot.bss nobits align=4096
 page_directory:

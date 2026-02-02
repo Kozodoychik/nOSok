@@ -29,7 +29,7 @@ namespace nosok {
                         break;
                     }
                     default:
-                        nosok::video::putc({*c, 0x07});
+                        nosok::video::putc(*c);
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace nosok {
 
             for (int c = chars-1; c >= 0; c--) {
                 uint8_t nibble = (val >> c*4) & 0xf;
-                nosok::video::putc({hex_digits[nibble], 0x07});
+                nosok::video::putc(hex_digits[nibble]);
             }
         }
 

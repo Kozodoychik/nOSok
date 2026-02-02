@@ -5,19 +5,27 @@
 #include <drivers/video.hpp>
 #include <drivers/pci.hpp>
 #include <std/printf.hpp>
+#include <boot/bootinfo.h>
 
 extern uint32_t stack_end;
 
-extern "C" void kmain() {
+extern "C" void kmain(bootloader_info* boot_info) {
     nosok::mem::frames::init();
     nosok::mem::paging::init();
     nosok::mem::heap_allocator_init((void*)&stack_end, 0x100000);
+
+    nosok::video::init(boot_info->display_info.fb, boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp);
+
 
     nosok::video::clear();
 
     nosok::video::set_cursor_pos({0, 0});
 
+    nosok::video::put_pixel({0, 0}, 0x00ffffff);
+    nosok::video::put_pixel({1, 1}, 0x00ffffff);
+
     nosok::io::printf("nOSok is booting...\n");
+    nosok::io::printf("framebuffer base: 0x%8x\n", boot_info->display_info.fb);
 
     nosok::io::printf("PCI devices:\n");
     
