@@ -32,9 +32,9 @@ namespace nosok {
         }
 
         void put_pixel(cursor_pos_t pos, uint32_t color) {
-            int bpp = scr_bpp;
-            for (int byte = 0; byte <= scr_bpp; byte++)
-                vga_mem[((pos.y * scr_w + pos.x) * scr_bpp) + byte] = (color >> (byte * 8)) & 0xff;
+            vga_mem[(pos.y * scr_w + pos.x) * 3] = color & 0xff;
+            vga_mem[(pos.y * scr_w + pos.x) * 3 + 1] = (color >> 8) & 0xff;
+            vga_mem[(pos.y * scr_w + pos.x) * 3 + 2] = (color >> 16) & 0xff;
         }
 
         cursor_pos_t get_cursor_pos() {

@@ -15,7 +15,7 @@ vesa_modeinfo setup_display() {
     vesa_modeinfo mode;
     edid_record edid;
 
-    bios_get_vesa_modeinfo(0x115, &mode);
+    bios_get_vesa_modeinfo(0x4115, &mode);
 
     bios_get_edid(&edid);
 
@@ -30,13 +30,13 @@ vesa_modeinfo setup_display() {
     for (uint16_t m = 0x4100; m < 0xffff; m++) {
         bios_get_vesa_modeinfo(m, &mode);
 
-        if (mode.width == width && mode.height == height && mode.bpp == 32 && mode.attrib & 0x80) {
+        if (mode.width == width && mode.height == height && mode.bpp == 24 && mode.attrib & 0x90) {
             bios_set_vesa_mode(m);
             return mode;
         }
     }
 
-    bios_set_vesa_mode(0x115);
+    bios_set_vesa_mode(0x4115);
 
     return mode;
 }
