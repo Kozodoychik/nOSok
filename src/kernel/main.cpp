@@ -4,6 +4,7 @@
 #include <memory/alloc.hpp>
 #include <drivers/video.hpp>
 #include <drivers/pci.hpp>
+#include <drivers/io.hpp>
 #include <std/printf.hpp>
 #include <boot/bootinfo.h>
 #include <cpu/interrupts.hpp>

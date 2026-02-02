@@ -18,7 +18,7 @@ namespace nosok {
 
 				union {
 					struct {
-						uint8_t gate 	: 8;
+						uint8_t gate 	: 4;
 						uint8_t zero 	: 1;
 						uint8_t dpl  	: 2;
 						bool	present : 1;
@@ -40,7 +40,7 @@ namespace nosok {
 			void mask_irq(int int_n);
 			void unmask_irq(int int_n);
 
-			void register_handler(int int_n, void* handler);
+			void register_handler(int int_n, void* handler, uint8_t gate_type);
 
 		}
 	}

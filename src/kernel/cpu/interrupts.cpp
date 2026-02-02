@@ -65,8 +65,15 @@ namespace nosok {
 					nosok::io::ports::write8(PIC_MASTER_DATA, mask2 & ~(1 << int_n));
 			}
 
-			void register_handler(int int_n, void* handler) {
+			void register_handler(int int_n, void* handler, uint8_t gate_type) {
+				idt[int_n].offset_lo = (uint32_t)handler & 0xffff;
+				idt[int_n].offset_hi = (uint32_t)handler >> 16;
 
+				idt[int_n].dpl = 0;
+				idt[int_n].segment = 0x8;
+
+				idt[int_n].gate = gate_type;
+				idt[int_n].present = true;
 			}
 
 		}
