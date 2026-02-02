@@ -11,6 +11,10 @@ namespace nosok {
                     "memory"
                 );
             }
+	    void write8_slow(uint16_t port, uint8_t value) {
+		write8(port, value);
+		asm volatile ("jmp 1f\n1: jmp 1f\n1:");
+	    }
             void write16(uint16_t port, uint16_t value) {
                 asm (
                     "outw %0, %1":

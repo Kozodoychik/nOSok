@@ -5,6 +5,7 @@ namespace nosok {
         namespace ports {
 
             void write8(uint16_t port, uint8_t value);
+	    void write8_slow(uint16_t port, uint8_t value);
             void write16(uint16_t port, uint16_t value);
             void write32(uint16_t port, uint32_t value);
 
