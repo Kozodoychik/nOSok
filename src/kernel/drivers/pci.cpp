@@ -1,9 +1,54 @@
 #include <drivers/pci.hpp>
+#include <drivers/devices.hpp>
 #include <drivers/io.hpp>
+#include <memory/alloc.hpp>
+#include <std/printf.hpp>
+
+#include <drivers/net/rtl8139.hpp>
 
 namespace nosok {
     namespace devices {
         namespace pci {
+
+	    PCIDevice::PCIDevice() {
+		    this->bus = BUS_PCI;
+	    }
+
+	    PCIDevice::~PCIDevice() {
+
+	    }
+
+	    void init() {
+		for (uint16_t bus = 0; bus < 8; bus++){
+		    for (uint16_t device = 0; device < 32; device++) {
+			uint16_t func = config_read16({bus, device, 0, 0, 0}, 0x0e) & (1 << 7) ? 8 : 1;
+			for (uint16_t function = 0; function < func; function++) {
+			    device_header header = get_device_header({bus, device, function, 0, 0});
+
+			    switch (header.vendor_id) {
+				case 0x10ec: { // Realtek
+				    switch (header.device_id) {
+					case 0x8139: { // RTL8139
+					    Device* driver = new RTL8139();
+					    nosok::devices::register_driver(driver);
+					    break;
+					}
+				    }
+				    break;
+				}
+				case 0x1022: { // AMD
+				    switch (header.device_id) {
+					case 0x2000: { // AMD PCnet-PCI-II
+					    break;
+					}
+				    }
+				    break;
+				}
+			    }
+			}
+		    }
+		}
+	    }
 
             uint32_t get_id(device_info dev, uint32_t reg){
 

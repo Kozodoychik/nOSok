@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 #include <drivers/devices.hpp>
 
@@ -53,12 +55,12 @@ namespace nosok {
             } device_info;
 
             class PCIDevice : public nosok::devices::Device {
-                public:
-                    device_info info;
+	    public:
+			static device_info info;
 
-                    PCIDevice();
-                    ~PCIDevice();
-            };
+			PCIDevice();
+			~PCIDevice();
+	    };
 
             void init();
 
