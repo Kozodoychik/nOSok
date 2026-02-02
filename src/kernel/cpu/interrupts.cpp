@@ -18,10 +18,6 @@ namespace nosok {
 				idtr.size = sizeof(idt);
 				idtr.linear_addr = idt;
 
-				uint8_t mask1, mask2;
-				mask1 = nosok::io::ports::read8(PIC_MASTER_DATA);
-				mask2 = nosok::io::ports::read8(PIC_SLAVE_DATA);
-
 				nosok::io::ports::write8_slow(PIC_MASTER_CMD, 0x11);
 				nosok::io::ports::write8_slow(PIC_SLAVE_CMD, 0x11);
 
@@ -37,8 +33,8 @@ namespace nosok {
 				nosok::io::ports::write8_slow(PIC_MASTER_DATA, 0);
 				nosok::io::ports::write8_slow(PIC_SLAVE_DATA, 0);
 
-				nosok::io::ports::write8(PIC_MASTER_DATA, mask1);
-				nosok::io::ports::write8(PIC_SLAVE_DATA, mask2);
+				nosok::io::ports::write8(PIC_MASTER_DATA, 0xff);
+				nosok::io::ports::write8(PIC_SLAVE_DATA, 0xff);
 
 				asm volatile (
 					"lidt %0\nsti" :
