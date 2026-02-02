@@ -56,7 +56,7 @@ namespace nosok {
 
             class PCIDevice : public nosok::devices::Device {
 	    public:
-			static device_info info;
+			device_info info;
 
 			PCIDevice();
 			~PCIDevice();

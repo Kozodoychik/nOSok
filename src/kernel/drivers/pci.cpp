@@ -29,7 +29,8 @@ namespace nosok {
 				case 0x10ec: { // Realtek
 				    switch (header.device_id) {
 					case 0x8139: { // RTL8139
-					    Device* driver = new RTL8139();
+					    PCIDevice* driver = new RTL8139();
+					    driver->info = {bus, device, func, 0x10ec, 0x8139};
 					    nosok::devices::register_driver(driver);
 					    break;
 					}
