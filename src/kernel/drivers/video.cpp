@@ -1,4 +1,5 @@
 #include <drivers/video.hpp>
+#include <boot/vesa.h>
 #include <drivers/io.hpp>
 #include <memory/paging.hpp>
 #include <std/string.h>
@@ -11,14 +12,14 @@ namespace nosok {
         uint8_t* vga_mem = (uint8_t*)VGA_FRAMEBUFFER_BASE;
         cursor_pos_t cursor_pos;
 
-        int scr_w, scr_h, scr_bpp; // ширина, высота, байт (!!!) на пиксель
+        unsigned int scr_w, scr_h, scr_bpp, scr_pitch;
 
         uint32_t _compute_vga_offset(cursor_pos_t pos) {
-            return pos.y * scr_w + pos.x;
+            return (pos.y * scr_pitch + (pos.x * (scr_bpp / 8)));
         }
 
-        void init(void* framebuffer, unsigned int w, unsigned int h, unsigned int bpp) {
-            int pages_for_framebuffer = (w * h * (bpp / 8)) / 4096;
+        void init(void* framebuffer, unsigned int w, unsigned int h, unsigned int bpp, unsigned int pitch) {
+            int pages_for_framebuffer = (pitch * h * (bpp / 8)) / 4096;
 
             for (int i = 0; i <= pages_for_framebuffer; i++) {
                 uint32_t offset = i * 4096;
@@ -26,15 +27,18 @@ namespace nosok {
             }
 
             cursor_pos = {0, 0};
+            
             scr_w = w;
             scr_h = h;
-            scr_bpp = bpp / 8;
+            scr_bpp = bpp;
+            scr_pitch = pitch;
         }
 
-        void put_pixel(cursor_pos_t pos, uint32_t color) {
-            vga_mem[(pos.y * scr_w + pos.x) * 3] = color & 0xff;
-            vga_mem[(pos.y * scr_w + pos.x) * 3 + 1] = (color >> 8) & 0xff;
-            vga_mem[(pos.y * scr_w + pos.x) * 3 + 2] = (color >> 16) & 0xff;
+        void put_pixel(unsigned int x, unsigned int y, uint32_t color) {
+            int offset = _compute_vga_offset({x, y});
+            vga_mem[offset] = color & 0xff;
+            vga_mem[offset + 1] = (color >> 8) & 0xff;
+            vga_mem[offset + 2] = (color >> 16) & 0xff;
         }
 
         cursor_pos_t get_cursor_pos() {
@@ -46,16 +50,15 @@ namespace nosok {
         }
 
         void scroll() {
-            memcpy((void*)VGA_FRAMEBUFFER_BASE, (void*)(VGA_FRAMEBUFFER_BASE + scr_w*VGA_CHAR_HEIGHT*scr_bpp), scr_w*(scr_h-VGA_CHAR_HEIGHT)*scr_bpp);
+            memcpy((void*)VGA_FRAMEBUFFER_BASE, (void*)(VGA_FRAMEBUFFER_BASE + scr_pitch*VGA_CHAR_HEIGHT*(scr_bpp/8)), scr_pitch*(scr_h-VGA_CHAR_HEIGHT)*(scr_bpp/8));
         }
 
         void clear() {
-            memset((void*)VGA_FRAMEBUFFER_BASE, 0x00, scr_w*scr_h*scr_bpp);
+            memset((void*)VGA_FRAMEBUFFER_BASE, 0x00, scr_pitch*scr_h*(scr_bpp/8));
         }
 
         void putc(char c) {
             cursor_pos_t pos = get_cursor_pos();
-            uint32_t index = _compute_vga_offset(pos);
 
             switch (c) {
                 case '\n': {
@@ -71,7 +74,7 @@ namespace nosok {
                         uint8_t line = display_font[glyph + y];
                         for (int x = 0; x < 8; x++) {
                             uint8_t pixel = (line << x) & 0x80;
-                            put_pixel({p.x + x, p.y + y}, pixel ? 0xffffff : 0);
+                            put_pixel(p.x + x, p.y + y, pixel ? 0xffffff : 0);
                         }
                     }
                     pos.x++;

@@ -30,7 +30,7 @@ vesa_modeinfo setup_display() {
     for (uint16_t m = 0x4100; m < 0xffff; m++) {
         bios_get_vesa_modeinfo(m, &mode);
 
-        if (mode.width == width && mode.height == height && mode.bpp == 24 && mode.attrib & 0x90) {
+        if (mode.width == width && mode.height == height && (mode.bpp == 24 || mode.bpp == 32) && mode.attrib & 0x90 && mode.mem_model == 6) {
             bios_set_vesa_mode(m);
             return mode;
         }
@@ -111,6 +111,7 @@ void ldrmain() {
     boot_info.display_info.w = mode.width;
     boot_info.display_info.h = mode.height;
     boot_info.display_info.bpp = mode.bpp;
+    boot_info.display_info.pitch = mode.pitch;
     boot_info.display_info.fb = (void*)mode.framebuffer;
 
     entry(&boot_info);

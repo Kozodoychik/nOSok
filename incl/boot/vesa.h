@@ -10,7 +10,7 @@ typedef struct {
     uint16_t    win1_seg;
     uint16_t    win2_seg;
     uint32_t    win_func_ptr;
-    uint16_t    bytes_per_scanline;
+    uint16_t    pitch;
     uint16_t    width;
     uint16_t    height;
     uint8_t     char_width;

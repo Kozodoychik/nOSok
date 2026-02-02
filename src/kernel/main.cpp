@@ -14,7 +14,7 @@ extern "C" void kmain(bootloader_info* boot_info) {
     nosok::mem::paging::init();
     nosok::mem::heap_allocator_init((void*)&stack_end, 0x100000);
 
-    nosok::video::init(boot_info->display_info.fb, boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp);
+    nosok::video::init(boot_info->display_info.fb, boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp, boot_info->display_info.pitch);
 
     nosok::video::clear();
 

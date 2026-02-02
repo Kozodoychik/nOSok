@@ -4,6 +4,7 @@ typedef struct {
 
     uint16_t    w;
     uint16_t    h;
+    uint16_t    pitch;
     uint8_t     bpp;
     void*       fb;
 
