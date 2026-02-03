@@ -5,13 +5,18 @@
 #include <std/printf.hpp>
 
 #include <drivers/net/rtl8139.hpp>
+#include <drivers/net/pcnet.hpp>
 
 namespace nosok {
 	namespace devices {
 		namespace pci {
 
-		PCIDevice::PCIDevice() {
+		PCIDevice::PCIDevice(device_info info) : Device() {
 			this->bus = BUS_PCI;
+
+			this->info.bus = info.bus;
+			this->info.device = info.device;
+			this->info.function = info.function;
 		}
 
 		PCIDevice::~PCIDevice() {
@@ -29,9 +34,8 @@ namespace nosok {
 							case 0x10ec: { // Realtek
 								switch (header.device_id) {
 									case 0x8139: { // RTL8139
-										PCIDevice* driver = new RTL8139();
-										driver->info = {bus, device, func, 0x10ec, 0x8139};
-										nosok::devices::register_driver(driver);
+										/*PCIDevice* driver = new RTL8139({bus, device, function, 0, 0});
+										nosok::devices::register_driver(driver);*/
 										break;
 									}
 								}
@@ -39,7 +43,10 @@ namespace nosok {
 							}
 							case 0x1022: { // AMD
 								switch (header.device_id) {
-									case 0x2000: { // AMD PCnet-PCI-II
+									case 0x2000: { // AMD PCnet-PCI II
+										PCIDevice* driver = new PCNET({bus, device, function, 0, 0});
+										nosok::devices::register_driver(driver);
+										driver->init();
 										break;
 									}
 								}
@@ -53,7 +60,7 @@ namespace nosok {
 
 			uint32_t get_id(device_info dev, uint32_t reg){
 
-				return 1 << 31 | ((dev.bus & 0xff) << 16) | ((dev.device & 0x1f) << 11) | ((dev.function & 0x07) << 8) | (reg & 0xfc);
+				return (1 << 31) | ((dev.bus & 0xff) << 16) | ((dev.device & 0x1f) << 11) | ((dev.function & 0x07) << 8) | (reg & 0xfc);
 
 			}
 

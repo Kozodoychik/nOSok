@@ -1,4 +1,5 @@
 #include <drivers/devices.hpp>
+#include <std/printf.hpp>
 
 namespace nosok {
 	namespace devices {
@@ -13,6 +14,14 @@ namespace nosok {
 
 	}
 
+	void Device::init() {
+
+	}
+
+	void Device::irq() {
+
+	}
+
 	int total_drivers = 0;
 
 		void init() {
@@ -24,6 +33,13 @@ namespace nosok {
 			driver_registry[total_drivers] = drv;
 			total_drivers++;
 		};
+
+		void send_irq(int irq_n) {
+			for (int i = 0; i < 1024; i++) {
+				if (driver_registry[i]->irq_n == irq_n)
+					driver_registry[i]->irq();
+			}
+		}
 
 	}
 }

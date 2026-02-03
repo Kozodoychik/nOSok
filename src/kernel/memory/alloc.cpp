@@ -71,6 +71,10 @@ void* operator new(size_t size) {
 	return nosok::mem::kmalloc(size);
 }
 
+void* operator new[](size_t size) {
+	return nosok::mem::kmalloc(size);
+}
+
 void operator delete(void* ptr) {
 	nosok::mem::kfree(ptr);
 }

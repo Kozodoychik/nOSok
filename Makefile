@@ -18,7 +18,7 @@ LDFLAGS=-T link.ld -o $(OUTPUT) -ffreestanding -O2 -nostdlib -lgcc
 ASFILES=$(shell find src/kernel -type f -name *.asm)
 CXXFILES=$(shell find src/kernel -type f -name *.cpp)
 CXXOBJ=$(CXXFILES:src/kernel/%.cpp=obj/kernel/%.o)
-ASOBJ=$(ASFILES:src/kernel/%.asm=obj/kernel/%.o)
+ASOBJ=$(ASFILES:src/kernel/%.asm=obj/kernel/%_asm.o)
 
 all: clean bootloader $(ASOBJ) $(CXXOBJ) $(OUTPUT) img
 
@@ -26,9 +26,10 @@ bootloader:
 	$(AS) src/boot/legacy/stage1.asm -f bin -o out/stage1.bin
 	$(AS) src/boot/legacy/nosokldr.asm -f elf -o obj/nosokldr_asm.o
 	$(CC) $(CFLAGS) -c src/boot/legacy/nosokldr.c -o obj/nosokldr_c.o
-	$(CC) -T src/boot/legacy/link.ld -ffreestanding -O2 -nostdlib -o out/nosokldr.bin obj/nosokldr_asm.o obj/nosokldr_c.o
+	$(CC) $(CFLAGS) -c src/boot/legacy/string.c -o obj/string.o
+	$(CC) -T src/boot/legacy/link.ld -ffreestanding -O2 -nostdlib -o out/nosokldr.bin obj/nosokldr_asm.o obj/nosokldr_c.o obj/string.o
 
-obj/kernel/%.o: src/kernel/%.asm
+obj/kernel/%_asm.o: src/kernel/%.asm
 	$(AS) $< $(ASFLAGS) -o obj/kernel/$(notdir $@)
 
 obj/kernel/%.o: src/kernel/%.cpp
@@ -61,10 +62,10 @@ run-gdb:
 	qemu-system-i386 -kernel $(OUTPUT) -d int --no-reboot -s -S
 
 run-img:
-	qemu-system-i386 -hdd out/hdd.img -d int --no-reboot
+	qemu-system-i386 -hdd out/hdd.img
 
 run-img-net:
-	qemu-system-i386 -hdd out/hdd.img -d int --no-reboot -nic model=rtl8139
+	qemu-system-i386 -hdd out/hdd.img -d int --no-reboot -nic model=pcnet
 
 convert-qcow2:
 	qemu-img convert $(HDDOUTPUT) -O qcow2 $(HDDOUTPUT:%.img=%.qcow2)

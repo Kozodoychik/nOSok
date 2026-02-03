@@ -76,6 +76,7 @@ _k_start:
 
 	cli
 	hlt
+	jmp $
 
 section .data
 display_font: incbin "src/kernel/res/font.bin"

@@ -41,6 +41,7 @@ namespace nosok {
 			void unmask_irq(int int_n);
 
 			void register_handler(int int_n, void* handler, uint8_t gate_type);
+			void register_irq(int int_n, void* handler);
 
 		}
 	}

@@ -15,13 +15,13 @@ extern uint32_t stack_end;
 extern "C" void kmain(bootloader_info* boot_info) {
 	nosok::mem::frames::init();
 	nosok::mem::paging::init();
-	nosok::mem::heap_allocator_init((void*)&stack_end, 0x100000);
-
-	nosok::cpu::interrupts::init();
+	nosok::mem::heap_allocator_init((void*)&stack_end, 0xffffffff);
 
 	nosok::video::init(boot_info->display_info.fb, boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp, boot_info->display_info.pitch);
 	nosok::video::clear();
 	nosok::video::set_cursor_pos({0, 0});
+
+	nosok::cpu::interrupts::init();
 
 	nosok::io::printf("nOSok is booting...\n");
 	nosok::io::printf("framebuffer base: 0x%8x\n", boot_info->display_info.fb);

@@ -50,7 +50,7 @@ namespace nosok {
 		}
 
 		void scroll() {
-			memcpy((void*)VGA_FRAMEBUFFER_BASE, (void*)(VGA_FRAMEBUFFER_BASE + scr_pitch*VGA_CHAR_HEIGHT*(scr_bpp/8)), scr_pitch*(scr_h-VGA_CHAR_HEIGHT)*(scr_bpp/8));
+			memcpy((void*)VGA_FRAMEBUFFER_BASE, (void*)(VGA_FRAMEBUFFER_BASE + scr_pitch*VGA_CHAR_HEIGHT), scr_pitch*(scr_h-VGA_CHAR_HEIGHT));
 		}
 
 		void clear() {
