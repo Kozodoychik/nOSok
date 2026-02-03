@@ -11,52 +11,52 @@ namespace nosok {
 	namespace devices {
 		namespace pci {
 
-		PCIDevice::PCIDevice(device_info info) : Device() {
-			this->bus = BUS_PCI;
+			PCIDevice::PCIDevice(device_info info) : Device() {
+				this->bus = BUS_PCI;
 
-			this->info.bus = info.bus;
-			this->info.device = info.device;
-			this->info.function = info.function;
-		}
+				this->info.bus = info.bus;
+				this->info.device = info.device;
+				this->info.function = info.function;
+			}
 
-		PCIDevice::~PCIDevice() {
+			/*PCINetworkDevice::PCINetworkDevice(device_info info) : PCIDevice(info) {
+				this->dev_class = nosok::devices::NETWORK;
+			}*/
 
-		}
-
-		void init() {
-			for (uint16_t bus = 0; bus < 8; bus++){
-				for (uint16_t device = 0; device < 32; device++) {
-					uint16_t func = config_read16({bus, device, 0, 0, 0}, 0x0e) & (1 << 7) ? 8 : 1;
-					for (uint16_t function = 0; function < func; function++) {
-						device_header header = get_device_header({bus, device, function, 0, 0});
-					
-						switch (header.vendor_id) {
-							case 0x10ec: { // Realtek
-								switch (header.device_id) {
-									case 0x8139: { // RTL8139
-										/*PCIDevice* driver = new RTL8139({bus, device, function, 0, 0});
-										nosok::devices::register_driver(driver);*/
-										break;
+			void init() {
+				for (uint16_t bus = 0; bus < 8; bus++){
+					for (uint16_t device = 0; device < 32; device++) {
+						uint16_t func = config_read16({bus, device, 0, 0, 0}, 0x0e) & (1 << 7) ? 8 : 1;
+						for (uint16_t function = 0; function < func; function++) {
+							device_header header = get_device_header({bus, device, function, 0, 0});
+						
+							switch (header.vendor_id) {
+								case 0x10ec: { // Realtek
+									switch (header.device_id) {
+										case 0x8139: { // RTL8139
+											/*PCIDevice* driver = new RTL8139({bus, device, function, 0, 0});
+											nosok::devices::register_driver(driver);*/
+											break;
+										}
 									}
+									break;
 								}
-								break;
-							}
-							case 0x1022: { // AMD
-								switch (header.device_id) {
-									case 0x2000: { // AMD PCnet-PCI II
-										PCIDevice* driver = new PCNET({bus, device, function, 0, 0});
-										nosok::devices::register_driver(driver);
-										driver->init();
-										break;
+								case 0x1022: { // AMD
+									switch (header.device_id) {
+										case 0x2000: { // AMD PCnet-PCI II
+											PCINetworkDevice* driver = new PCNET({bus, device, function, 0, 0});
+											nosok::devices::register_driver(driver);
+											driver->init();
+											break;
+										}
 									}
+									break;
 								}
-								break;
 							}
 						}
 					}
 				}
 			}
-		}
 
 			uint32_t get_id(device_info dev, uint32_t reg){
 

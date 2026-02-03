@@ -34,6 +34,15 @@ namespace nosok {
 			total_drivers++;
 		};
 
+		Device* find_device_by_class(device_class dev_class) {
+			for (int i = 0; i < 1024; i++) {
+				if (driver_registry[i]->dev_class == dev_class)
+					return driver_registry[i];
+			}
+
+			return 0;
+		}
+
 		void send_irq(int irq_n) {
 			for (int i = 0; i < 1024; i++) {
 				if (driver_registry[i]->irq_n == irq_n)

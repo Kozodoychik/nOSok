@@ -124,14 +124,10 @@ namespace nosok {
 }
 
 extern "C" void irq_handler(uint32_t i) {
-	//nosok::io::printf("IRQ: 0x%2x", i);
-	
 	nosok::devices::send_irq(i-0x20);
 	// EOI
 	nosok::io::ports::write8(PIC_MASTER_CMD, 0x20);
 	nosok::io::ports::write8(PIC_SLAVE_CMD, 0x20);
-
-	asm volatile("sti");
 }
 
 extern "C" void isr_handler(uint32_t i, regs_t regs) {

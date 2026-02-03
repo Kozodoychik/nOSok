@@ -60,7 +60,17 @@ namespace nosok {
 				uint16_t io_base;
 
 				PCIDevice(device_info info);
-				~PCIDevice();
+			};
+
+			class PCINetworkDevice : public PCIDevice {
+			public:
+				PCINetworkDevice(device_info info) : PCIDevice(info) {
+					this->dev_class = nosok::devices::NETWORK;
+				};
+
+				uint8_t mac[6];
+
+				virtual void send_packet(void* buffer, unsigned int size);
 			};
 
 			void init();

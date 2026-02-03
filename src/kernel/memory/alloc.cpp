@@ -78,3 +78,15 @@ void* operator new[](size_t size) {
 void operator delete(void* ptr) {
 	nosok::mem::kfree(ptr);
 }
+
+void operator delete(void* ptr, size_t) {
+	nosok::mem::kfree(ptr);
+}
+
+void operator delete[](void* ptr) {
+	nosok::mem::kfree(ptr);
+}
+
+void operator delete[](void* ptr, size_t) {
+	nosok::mem::kfree(ptr);
+}

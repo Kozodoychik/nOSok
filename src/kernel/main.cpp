@@ -6,8 +6,11 @@
 #include <drivers/pci.hpp>
 #include <drivers/io.hpp>
 #include <std/printf.hpp>
+#include <std/string.hpp>
+#include <std/inet.hpp>
 #include <boot/bootinfo.h>
 #include <cpu/interrupts.hpp>
+#include <net/ip.hpp>
 
 
 extern uint32_t stack_end;
@@ -44,6 +47,9 @@ extern "C" void kmain(bootloader_info* boot_info) {
 			}
 		}
 	}
+
+
+	while(1);
 
 	return;
 }

@@ -72,11 +72,13 @@ typedef struct {
 
 using namespace nosok::devices::pci;
 
-class PCNET: public PCIDevice {
+class PCNET: public PCINetworkDevice {
 public:
 
 	PCNET(device_info info);
 	~PCNET();
+
+	void send_packet(void* buffer, unsigned int size) override;
 
 	void init() override;
 	void irq() override;

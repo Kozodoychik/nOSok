@@ -1,16 +1,36 @@
 #include <drivers/net/pcnet.hpp>
 #include <drivers/io.hpp>
 #include <drivers/pci.hpp>
+#include <drivers/devices.hpp>
 #include <std/printf.hpp>
 #include <std/string.h>
 #include <cpu/interrupts.hpp>
+#include <net/ethernet.hpp>
 
 void PCNET::irq() {
 	uint32_t status = this->read_csr32(0);
 
 	if (status & 0x100) this->init_done = true;
 
-	nosok::io::printf("PCNET IRQ!!!\n");
+	if (status & 0x400) {
+		int size = this->rx_descr[this->rx_n].bcnt;
+
+		nosok::net::handle_packet((void*)this->rx_descr[this->rx_n].rx_buffer);
+
+		this->rx_descr[this->rx_n].own = true;
+		this->rx_n++;
+		if (this->rx_n > 7) this->rx_n = 0;
+	}
+
+	if (status & 0x200) {
+		nosok::io::printf("Send something!!!\n");
+		this->tx_n++;
+		if (this->tx_n > 7) this->tx_n = 0;
+	}
+
+	if (status & 0x8000) {
+		nosok::io::printf("Error!!!\n");
+	}
 
 	this->write_csr32(0, status | 0x400);
 }
@@ -67,7 +87,7 @@ void PCNET::write_bcr32(uint32_t port, uint32_t value) {
 	nosok::io::ports::write32(this->io_base + PCNET_32_BDP, value);
 }
 
-PCNET::PCNET(device_info info) : PCIDevice(info) {};
+PCNET::PCNET(device_info info) : PCINetworkDevice(info) {};
 
 void PCNET::init() {
 	this->info.vendor_id = 0x1022;
@@ -99,13 +119,11 @@ void PCNET::init() {
 	nosok::io::ports::write32(this->io_base + PCNET_32_RDP, 0);
 
 	// Читаем MAC-адрес
-	uint8_t mac[6];
-
 	for (int i = 0; i < 6; i++) {
-		mac[i] = (uint8_t)(nosok::io::ports::read32(this->io_base + i) & 0xff);
+		this->mac[i] = (uint8_t)(nosok::io::ports::read32(this->io_base + i) & 0xff);
 	}
 
-	nosok::io::printf("MAC: %2x:%2x:%2x:%2x:%2x:%2x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	nosok::io::printf("MAC: %2x:%2x:%2x:%2x:%2x:%2x\n", this->mac[0], this->mac[1], this->mac[2], this->mac[3], this->mac[4], this->mac[5]);
 
 	// SWSTYLE
 	uint32_t csr58 = this->read_csr32(58);
@@ -135,7 +153,7 @@ void PCNET::init() {
 		this->tx_descr[i].bcnt = bcnt;
 		this->tx_descr[i].ones = 0xf;
 
-		this->rx_descr[i].own = 1;
+		this->rx_descr[i].own = true;
 	}
 
 	// Подготавливаем блок инициализации
@@ -156,18 +174,30 @@ void PCNET::init() {
 
 	uint32_t csr3 = this->read_csr32(3);
 	csr3 &= -0x700;
-	this->write_csr32(3, 0);
+	this->write_csr32(3, csr3);
 
-	while(!init_done);
-
-	/*csr0 = this->read_csr32(0);
-	csr0 |= (1 << 1) | (1 << 6);
-	this->write_csr32(0, csr0);*/
-
+	while(!this->init_done);
 
 	csr0 = this->read_csr32(0);
 	csr0 &= -(0b101);
 	csr0 |= 0b10;
 	this->write_csr32(0, csr0);
+}
 
+void PCNET::send_packet(void* buffer, unsigned int size) {
+	if (this->tx_descr[this->tx_n].own) return;
+
+	nosok::io::printf("Sending packet... (size: %x)\n", size);
+
+	uint32_t bcnt = -size;
+	bcnt &= 0xfff;
+	bcnt |= 0xf000;
+
+	this->tx_descr[this->tx_n].bcnt = bcnt;
+
+	memcpy((void*)this->tx_descr[this->tx_n].tx_buffer, buffer, size);
+
+	this->tx_descr[this->tx_n].stp = true;
+	this->tx_descr[this->tx_n].enp = true;
+	this->tx_descr[this->tx_n].own = true;
 }
