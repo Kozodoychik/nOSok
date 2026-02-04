@@ -7,7 +7,15 @@ uint32_t htonl(uint32_t value) {
 			((value & 0x000000ff) << 24);
 }
 
-uint16_t htonl(uint16_t value) {
+uint16_t htons(uint16_t value) {
 	return	((value & 0xff00) >> 8) | \
 			((value & 0x00ff) << 8);
+}
+
+uint32_t ntohl(uint32_t value) {
+	return htonl(value);
+}
+
+uint16_t ntohs(uint16_t value) {
+	return htons(value);
 }

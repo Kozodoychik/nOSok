@@ -10,7 +10,9 @@
 #include <std/inet.hpp>
 #include <boot/bootinfo.h>
 #include <cpu/interrupts.hpp>
-#include <net/ip.hpp>
+#include <net/ethernet.hpp>
+#include <net/udp.hpp>
+#include <net/dhcp.hpp>
 
 
 extern uint32_t stack_end;
@@ -47,6 +49,13 @@ extern "C" void kmain(bootloader_info* boot_info) {
 			}
 		}
 	}
+
+
+	uint8_t src_ip[4] = {0, 0, 0, 0};
+
+	nosok::net::init();
+	nosok::net::ip::udp::init();
+	nosok::net::ip::dhcp::init();
 
 
 	while(1);
