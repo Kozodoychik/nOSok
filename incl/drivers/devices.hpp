@@ -20,7 +20,7 @@ namespace nosok {
 		public:
 			bus_type bus;
 			device_class dev_class;
-			uint8_t irq_n;
+			uint8_t irq_n = -1;
 
 			Device();
 			~Device();

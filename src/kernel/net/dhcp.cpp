@@ -58,7 +58,7 @@ namespace nosok {
 
 					void* data = socket->recv();
 
-					nosok::io::printf("RECEIVED!!! %x", ((uint8_t*)data)[0]);
+					nosok::io::printf("RECEIVED!!! %x", ((uint8_t*)data));
 
 				}
 

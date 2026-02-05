@@ -39,11 +39,16 @@ namespace nosok {
 
 				void* UDPSocket::recv() {
 					
-					while (!this->got_packet) {
-						asm volatile ("pause");
-					}
+					//nosok::io::printf("%x\n", this->got_packet);
 
-					//this->got_packet = false;
+					while (!this->got_packet) {
+						asm volatile ("sti\nhlt\ncli");
+					}
+					asm volatile("sti");
+
+					//nosok::io::printf("%x\n", this->got_packet);
+
+					this->got_packet = false;
 
 					void* buffer = this->recv_buffer;
 
@@ -90,8 +95,8 @@ namespace nosok {
 
 					if (sockets[ntohs(header->dst_port)] == 0) return;
 
-					sockets[ntohs(header->dst_port)]->recv_buffer = buffer + sizeof(udp_header);
 					sockets[ntohs(header->dst_port)]->got_packet = true;
+					sockets[ntohs(header->dst_port)]->recv_buffer = (void*)((uint32_t)buffer + sizeof(udp_header));
 				}
 
 				uint16_t compute_checksum(udp_pseudoheader pseudoheader, udp_header header, void* buffer, unsigned int len) {

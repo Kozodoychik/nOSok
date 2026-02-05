@@ -4,6 +4,7 @@
 #include <memory/alloc.hpp>
 #include <std/printf.hpp>
 
+#include <drivers/block/ahci.hpp>
 #include <drivers/net/rtl8139.hpp>
 #include <drivers/net/pcnet.hpp>
 
@@ -44,9 +45,28 @@ namespace nosok {
 								case 0x1022: { // AMD
 									switch (header.device_id) {
 										case 0x2000: { // AMD PCnet-PCI II
-											PCINetworkDevice* driver = new PCNET({bus, device, function, 0, 0});
-											nosok::devices::register_driver(driver);
+											PCIDevice* driver = new PCNET({bus, device, function, 0, 0});
+											register_driver(driver);
 											driver->init();
+											break;
+										}
+									}
+									break;
+								}
+							}
+
+							switch (header.class_code) {
+								case 0x01: { // Mass storage
+									switch (header.subclass) {
+										case 0x06: { // SATA
+											switch (header.prog_if) {
+												case 0x01: { // AHCI
+													PCIDevice* driver = new AHCIBlockDevice({bus, device, function, 0, 0});
+													register_driver(driver);
+													driver->init();
+													break;
+												}
+											}
 											break;
 										}
 									}

@@ -11,7 +11,6 @@ namespace nosok {
 	Device::~Device() {}
 
 	void Device::init() {}
-
 	void Device::irq() {}
 
 	int total_drivers = 0;

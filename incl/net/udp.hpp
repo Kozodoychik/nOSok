@@ -31,8 +31,8 @@ namespace nosok {
 					uint8_t ip[4];
 					uint16_t port;
 
-					volatile bool got_packet = false;
 					void* recv_buffer;
+					volatile bool got_packet = false;
 				};
 
 				void init();

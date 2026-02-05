@@ -17,11 +17,15 @@ namespace nosok {
 			void init() {
 				nosok::devices::pci::PCINetworkDevice* adapter = (nosok::devices::pci::PCINetworkDevice*)nosok::devices::find_device_by_class(nosok::devices::DEVICE_NETWORK);
 
+				if (!adapter) return;
+
 				memcpy(client_mac, adapter->mac, 6);
 			}
 
 			void send(ethernet_header_t header, void* payload, unsigned int size) {
 				nosok::devices::pci::PCINetworkDevice* adapter = (nosok::devices::pci::PCINetworkDevice*)nosok::devices::find_device_by_class(nosok::devices::DEVICE_NETWORK);
+
+				if (!adapter) return;
 
 				uint8_t* frame = new uint8_t[size + sizeof(ethernet_header_t)];
 

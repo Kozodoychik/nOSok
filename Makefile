@@ -64,6 +64,9 @@ run-gdb:
 run-img:
 	qemu-system-i386 -hdd out/hdd.img -d int --no-reboot
 
+run-img-ahci:
+	qemu-system-i386 -drive id=disk,file=out/hdd.img,if=none -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0 -d int --no-reboot
+
 run-img-net:
 	qemu-system-i386 -hdd out/hdd.img -d int --no-reboot -nic model=pcnet
 

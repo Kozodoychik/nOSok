@@ -16,7 +16,7 @@ void PCNET::irq() {
 	if (status & 0x400) {
 		int size = this->rx_descr[this->rx_n].bcnt;
 
-		nosok::net::handle_packet((void*)this->rx_descr[this->rx_n].rx_buffer);
+		nosok::net::handle_packet((void*)(rx_buffer + 1520 * this->rx_n));
 
 		this->rx_descr[this->rx_n].own = true;
 		this->rx_n++;
