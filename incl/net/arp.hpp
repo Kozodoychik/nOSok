@@ -14,8 +14,22 @@ namespace nosok {
 				uint8_t		src_ip[4];
 				uint8_t		dst_mac[6];
 				uint8_t		dst_ip[4];
-			} arp_packet;
+			}__attribute__((packed)) arp_packet;
 			
+			typedef struct arp_cache_entry {
+				uint8_t ip[4];
+				uint8_t mac[6];
+				arp_cache_entry* next;
+			} arp_cache_entry;
+
+			void init();
+
+			void handle_packet(void* buffer);
+
+			void add_cache_entry(uint8_t ip[4], uint8_t mac[6]);
+			arp_cache_entry* get_by_ip(uint8_t ip[4]);
+			arp_cache_entry* get_by_mac(uint8_t mac[6]);
+
 		}
 	}
 }

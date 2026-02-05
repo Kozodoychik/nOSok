@@ -11,6 +11,7 @@
 #include <boot/bootinfo.h>
 #include <cpu/interrupts.hpp>
 #include <net/ethernet.hpp>
+#include <net/arp.hpp>
 #include <net/udp.hpp>
 #include <net/dhcp.hpp>
 
@@ -50,11 +51,10 @@ extern "C" void kmain(bootloader_info* boot_info) {
 		}
 	}
 
-
 	nosok::net::init();
+	nosok::net::arp::init();
 	nosok::net::ip::udp::init();
 	nosok::net::ip::dhcp::init();
-
 
 	while(1);
 

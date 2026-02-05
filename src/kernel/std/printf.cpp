@@ -1,4 +1,5 @@
 #include <std/printf.hpp>
+#include <std/string.hpp>
 #include <drivers/video.hpp>
 
 namespace nosok {
@@ -21,6 +22,11 @@ namespace nosok {
 						switch (*(c+1)) {
 							case 'x': {
 								print_hex(*(uint32_t*)va_args, format_param);
+								break;
+							}
+							case 'd': {
+								print_dec(*(uint32_t*)va_args);
+								break;
 							}
 						}
 
@@ -37,20 +43,37 @@ namespace nosok {
 		char hex_digits[17] = "0123456789abcdef";
 
 		void print_hex(uint32_t val, int padding) {
-			int chars = padding == 0 ? 0 : padding;
-			uint32_t tmp = val;
+			char str[9];
+			unsigned int offset = 7;
+			uint8_t printed = 0;
 
-			while (tmp != 0 && padding == 0) {
-				tmp >>= 4;
-				chars++;
-			}
+			memset(str, 0, 9);
 
-			if (val == 0 && padding == 0) chars = 1;
+			do {
+				uint8_t digit = val & 0xf;
+				str[offset--] = hex_digits[digit];
+				val >>= 4;
+				printed++;
+			} while (val != 0);
 
-			for (int c = chars-1; c >= 0; c--) {
-				uint8_t nibble = (val >> c*4) & 0xf;
-				nosok::video::putc(hex_digits[nibble]);
-			}
+			for (int i = 0; i < padding - printed; i++)
+				str[offset--] = '0';
+
+			printf(str + offset+1);
+		}
+
+		void print_dec(uint32_t val) {
+			char str[11];
+			unsigned int offset = 9;
+			memset(str, 0, 11);
+
+			do {
+				uint8_t digit = val % 10;
+				str[offset--] = digit + '0';
+				val /= 10;
+			} while (val != 0);
+
+			printf(str + offset+1);
 		}
 
 	}

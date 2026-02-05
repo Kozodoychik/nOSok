@@ -104,13 +104,13 @@ namespace nosok {
 					uint16_t* pseudoheader_ptr = (uint16_t*)&pseudoheader;
 					uint16_t* ptr = (uint16_t*)buffer;
 
-					for (int i = 0; i < (sizeof(udp_pseudoheader) / 2); i++) {
+					for (unsigned int i = 0; i < (sizeof(udp_pseudoheader) / 2); i++) {
 						checksum += pseudoheader_ptr[i];
 						if (checksum & 0x10000)
 							checksum = (checksum & 0xffff) + 1;
 					}
 
-					for (int i = 0; i < (sizeof(udp_header) / 2); i++) {
+					for (unsigned int i = 0; i < (sizeof(udp_header) / 2); i++) {
 						checksum += header_ptr[i];
 						if (checksum & 0x10000)
 							checksum = (checksum & 0xffff) + 1;

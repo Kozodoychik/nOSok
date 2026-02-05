@@ -1,5 +1,6 @@
 #include <net/ethernet.hpp>
 #include <net/ip.hpp>
+#include <net/arp.hpp>
 #include <drivers/devices.hpp>
 #include <drivers/pci.hpp>
 #include <std/printf.hpp>
@@ -46,6 +47,10 @@ namespace nosok {
 				switch (ntohs(header->ether_type)) {
 					case ETH_PROTO_IP: {
 						nosok::net::ip::handle_packet(buffer + sizeof(ethernet_header_t));
+						break;
+					}
+					case ETH_PROTO_ARP: {
+						nosok::net::arp::handle_packet(buffer + sizeof(ethernet_header_t));
 						break;
 					}
 				}

@@ -55,7 +55,7 @@ namespace nosok {
 				uint32_t sum = 0;
 				uint16_t* header_words = (uint16_t*)&header;
 
-				for (int i = 0; i < (sizeof(ipv4_header) / 2); i++) {
+				for (unsigned int i = 0; i < (sizeof(ipv4_header) / 2); i++) {
 					sum += htons(header_words[i]);
 				}
 

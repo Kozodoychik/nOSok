@@ -1,5 +1,6 @@
 #include <net/dhcp.hpp>
 #include <net/ethernet.hpp>
+#include <net/arp.hpp>
 #include <net/ip.hpp>
 #include <net/udp.hpp>
 #include <std/inet.hpp>
@@ -104,7 +105,9 @@ namespace nosok {
 
 					uint8_t* ip = nosok::net::ip::get_ip();
 
-					nosok::io::printf("My IP: %x.%x.%x.%x\n", ip[0], ip[1], ip[2], ip[3]);
+					nosok::io::printf("My IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+
+					nosok::net::arp::add_cache_entry(ip, nosok::net::get_mac());
 
 				}
 
