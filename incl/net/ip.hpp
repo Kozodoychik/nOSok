@@ -29,7 +29,7 @@ namespace nosok {
 			uint16_t compute_checksum(ipv4_header header);
 
 			uint8_t* get_ip();
-			void*	set_ip();
+			void set_ip(uint8_t ip[4]);
 
 		}
 	}

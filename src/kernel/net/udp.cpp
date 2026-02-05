@@ -46,7 +46,7 @@ namespace nosok {
 					}
 					asm volatile("sti");
 
-					//nosok::io::printf("%x\n", this->got_packet);
+					nosok::io::printf("%x\n", this->got_packet);
 
 					this->got_packet = false;
 
@@ -68,7 +68,6 @@ namespace nosok {
 					ip_header.protocol = 0x11;
 
 					uint8_t* packet = new uint8_t[size + sizeof(udp_header)];
-
 
 					udp_pseudoheader pseudoheader;
 

@@ -43,10 +43,6 @@ namespace nosok {
 			void handle_packet(void* buffer) {
 				ethernet_header_t* header = (ethernet_header_t*)buffer;
 
-				nosok::io::printf("Got Ethernet packet\nFrom: %2x:%2x:%2x:%2x:%2x:%2x\nTo:   %2x:%2x:%2x:%2x:%2x:%2x\n",\
-					header->src_mac[0], header->src_mac[1], header->src_mac[2], header->src_mac[3], header->src_mac[4], header->src_mac[5], \
-					header->dst_mac[0], header->dst_mac[1], header->dst_mac[2], header->dst_mac[3], header->dst_mac[4], header->dst_mac[5]);
-
 				switch (ntohs(header->ether_type)) {
 					case ETH_PROTO_IP: {
 						nosok::net::ip::handle_packet(buffer + sizeof(ethernet_header_t));
