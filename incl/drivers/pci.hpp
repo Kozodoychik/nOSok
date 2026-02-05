@@ -65,7 +65,7 @@ namespace nosok {
 			class PCINetworkDevice : public PCIDevice {
 			public:
 				PCINetworkDevice(device_info info) : PCIDevice(info) {
-					this->dev_class = nosok::devices::NETWORK;
+					this->dev_class = nosok::devices::DEVICE_NETWORK;
 				};
 
 				uint8_t mac[6];

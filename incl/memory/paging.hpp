@@ -44,13 +44,12 @@ namespace nosok {
 
 			void init();
 
-			void* map_page(uint32_t paddr, uint32_t vaddr);
-			void unmap_page(uint32_t vaddr);
+			void* map_page(void* paddr, void* vaddr);
+			void unmap_page(void* vaddr);
 
-			page_table_entry* get_pte(uint32_t vaddr);
+			bool page_present(void* vaddr);
 
-			uint32_t vaddr_to_paddr(uint32_t vaddr);
-			uint32_t paddr_to_vaddr(uint32_t paddr);
+			void* vaddr_to_paddr(void* vaddr);
 
 			void set_cr3(page_dir_entry* pd);
 			uint32_t get_cr3();

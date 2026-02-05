@@ -153,7 +153,6 @@ start:
 			add ax, [first_data_sect]
 			xor cx, cx
 			mov cl, [secs_per_cluster]
-			;jmp $
 			call disk_read
 			cmp word [si], 0xfff8
 			jge .stop
@@ -187,7 +186,6 @@ start:
 		; Прыгаем в загрузчик
 		.stop:
 			mov dl, [bootdev]
-			mov cx, [first_data_sect]
 			jmp NOSOKLDR_ADDR
 
 

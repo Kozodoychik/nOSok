@@ -23,7 +23,7 @@ namespace nosok {
 
 			for (int i = 0; i <= pages_for_framebuffer; i++) {
 				uint32_t offset = i * 4096;
-				nosok::mem::paging::map_page(offset + (uint32_t)framebuffer, offset + VGA_FRAMEBUFFER_BASE);
+				nosok::mem::paging::map_page((void*)(offset + (uint32_t)framebuffer), (void*)(offset + VGA_FRAMEBUFFER_BASE));
 			}
 
 			cursor_pos = {0, 0};

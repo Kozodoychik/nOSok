@@ -12,7 +12,8 @@ namespace nosok {
 		} bus_type;
 
 		typedef enum {
-			NETWORK
+			DEVICE_BLOCK,
+			DEVICE_NETWORK
 		} device_class;
 
 		class Device {

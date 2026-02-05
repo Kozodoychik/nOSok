@@ -1,4 +1,5 @@
 #include <memory/alloc.hpp>
+#include <memory/paging.hpp>
 
 namespace nosok {
 	namespace mem {

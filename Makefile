@@ -62,7 +62,7 @@ run-gdb:
 	qemu-system-i386 -kernel $(OUTPUT) -d int --no-reboot -s -S
 
 run-img:
-	qemu-system-i386 -hdd out/hdd.img
+	qemu-system-i386 -hdd out/hdd.img -d int --no-reboot
 
 run-img-net:
 	qemu-system-i386 -hdd out/hdd.img -d int --no-reboot -nic model=pcnet

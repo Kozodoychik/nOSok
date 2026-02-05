@@ -40,7 +40,7 @@ namespace nosok {
 				void send(uint8_t ip[4], udp_header header, void* buffer, unsigned int size);
 				void handle_packet(void* buffer);
 
-				uint16_t compute_checksum(void* buffer, unsigned int len);
+				uint16_t compute_checksum(udp_pseudoheader pseudoheader, udp_header header, void* buffer, unsigned int len);
 
 			}
 		}

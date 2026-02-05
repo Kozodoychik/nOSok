@@ -15,10 +15,10 @@ namespace nosok {
 
 			}
 
-			void* map_page(uint32_t paddr, uint32_t vaddr) {
+			void* map_page(void* paddr, void* vaddr) {
 				page_table_entry* page_table;
-				int pd_index = (vaddr & 0xFFC00000) >> 22;
-				int pt_index = (vaddr & 0x003FF000) >> 12;
+				int pd_index = ((uint32_t)vaddr & 0xFFC00000) >> 22;
+				int pt_index = ((uint32_t)vaddr & 0x003FF000) >> 12;
 
 				if (!current_page_dir[pd_index].present) {
 					page_table_entry* frame = (page_table_entry*)nosok::mem::frames::alloc();
@@ -33,17 +33,17 @@ namespace nosok {
 					page_table = (page_table_entry*)(current_page_dir[pd_index].address << 12);
 				}
 
-				page_table[pt_index].address = paddr >> 12;
+				page_table[pt_index].address = (uint32_t)paddr >> 12;
 				page_table[pt_index].read_write = true;
 				page_table[pt_index].present = true;
 
 				return (void*)vaddr;
 			}
 
-			void unmap_page(uint32_t vaddr) {
+			void unmap_page(void* vaddr) {
 				page_table_entry* page_table;
-				int pd_index = (vaddr & 0xFFC00000) >> 22;
-				int pt_index = (vaddr & 0x003FF000) >> 12;
+				int pd_index = ((uint32_t)vaddr & 0xFFC00000) >> 22;
+				int pt_index = ((uint32_t)vaddr & 0x003FF000) >> 12;
 
 				if (!current_page_dir[pd_index].present) return;
 
@@ -60,7 +60,35 @@ namespace nosok {
 
 			}
 
-			
+			bool page_present(void* vaddr) {
+				int pd_index = ((uint32_t)vaddr & 0xFFC00000) >> 22;
+				int pt_index = ((uint32_t)vaddr & 0x003FF000) >> 12;
+
+				page_table_entry* page_table;
+
+				if (!current_page_dir[pd_index].present) return false;
+
+				page_table = (page_table_entry*)(current_page_dir[pd_index].address << 12);
+
+				if (!page_table[pt_index].present) return false;
+
+				return true;
+			}
+
+			void* vaddr_to_paddr(void* vaddr) {
+				int pd_index = ((uint32_t)vaddr & 0xFFC00000) >> 22;
+				int pt_index = ((uint32_t)vaddr & 0x003FF000) >> 12;
+
+				page_table_entry* page_table;
+
+				if (!current_page_dir[pd_index].present) return 0;
+
+				page_table = (page_table_entry*)(current_page_dir[pd_index].address << 12);
+
+				if (!page_table[pt_index].present) return 0;
+
+				return (void*)((page_table[pt_index].address << 12) | ((uint32_t)vaddr & 0xfff));
+			}
 
 			void set_cr3(page_dir_entry* pd) {
 				asm (

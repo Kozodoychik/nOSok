@@ -51,8 +51,6 @@ extern "C" void kmain(bootloader_info* boot_info) {
 	}
 
 
-	uint8_t src_ip[4] = {0, 0, 0, 0};
-
 	nosok::net::init();
 	nosok::net::ip::udp::init();
 	nosok::net::ip::dhcp::init();

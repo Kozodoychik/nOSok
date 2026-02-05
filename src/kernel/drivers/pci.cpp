@@ -59,9 +59,7 @@ namespace nosok {
 			}
 
 			uint32_t get_id(device_info dev, uint32_t reg){
-
 				return (1 << 31) | ((dev.bus & 0xff) << 16) | ((dev.device & 0x1f) << 11) | ((dev.function & 0x07) << 8) | (reg & 0xfc);
-
 			}
 
 			uint32_t config_read(device_info dev, uint32_t reg) {

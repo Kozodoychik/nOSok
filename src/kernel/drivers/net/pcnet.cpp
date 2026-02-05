@@ -6,6 +6,7 @@
 #include <std/string.h>
 #include <cpu/interrupts.hpp>
 #include <net/ethernet.hpp>
+#include <memory/paging.hpp>
 
 void PCNET::irq() {
 	uint32_t status = this->read_csr32(0);
@@ -23,13 +24,12 @@ void PCNET::irq() {
 	}
 
 	if (status & 0x200) {
-		nosok::io::printf("Send something!!!\n");
 		this->tx_n++;
 		if (this->tx_n > 7) this->tx_n = 0;
 	}
 
 	if (status & 0x8000) {
-		nosok::io::printf("Error!!!\n");
+		nosok::io::printf("PCNET Error!!!\n");
 	}
 
 	this->write_csr32(0, status | 0x400);
@@ -145,8 +145,8 @@ void PCNET::init() {
 	uint16_t bcnt = 0xa10;	// -1520 & 0xfff
 
 	for (int i = 0; i < 8; i++) {
-		this->rx_descr[i].rx_buffer = (((uint32_t)rx_buffer & 0x00ffffff) + (1520 * i));
-		this->tx_descr[i].tx_buffer = (((uint32_t)tx_buffer & 0x00ffffff) + (1520 * i));
+		this->rx_descr[i].rx_buffer = (((uint32_t)nosok::mem::paging::vaddr_to_paddr(rx_buffer)) + (1520 * i));
+		this->tx_descr[i].tx_buffer = (((uint32_t)nosok::mem::paging::vaddr_to_paddr(tx_buffer)) + (1520 * i));
 
 		this->rx_descr[i].bcnt = bcnt;
 		this->rx_descr[i].ones = 0xf;
@@ -160,13 +160,15 @@ void PCNET::init() {
 	this->init_block.rlen = 3;
 	this->init_block.tlen = 3;
 
-	this->init_block.rdra = ((uint32_t)this->rx_descr & 0x00ffffff);
-	this->init_block.tdra = ((uint32_t)this->tx_descr & 0x00ffffff);
+	this->init_block.rdra = ((uint32_t)nosok::mem::paging::vaddr_to_paddr(this->rx_descr));
+	this->init_block.tdra = ((uint32_t)nosok::mem::paging::vaddr_to_paddr(this->tx_descr));
 
 	memcpy(this->init_block.mac, mac, 6);
 
-	this->write_csr32(1, (uint32_t)&this->init_block & 0xffff);
-	this->write_csr32(2, ((uint32_t)&this->init_block >> 16) & 0x00ff);
+	void* init_block_paddr = nosok::mem::paging::vaddr_to_paddr(&this->init_block);
+
+	this->write_csr32(1, (uint32_t)init_block_paddr & 0xffff);
+	this->write_csr32(2, ((uint32_t)init_block_paddr >> 16));
 
 	uint32_t csr0 = this->read_csr32(0);
 	csr0 |= 1 | (1 << 6);
@@ -186,8 +188,6 @@ void PCNET::init() {
 
 void PCNET::send_packet(void* buffer, unsigned int size) {
 	if (this->tx_descr[this->tx_n].own) return;
-
-	nosok::io::printf("Sending packet... (size: %x)\n", size);
 
 	uint32_t bcnt = -size;
 	bcnt &= 0xfff;

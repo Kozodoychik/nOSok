@@ -64,22 +64,16 @@ namespace nosok {
 
 					uint8_t* packet = new uint8_t[size + sizeof(udp_header)];
 
-					uint8_t* checksum_buffer = new uint8_t[size + sizeof(udp_header) + sizeof(udp_pseudoheader)];
 
-					udp_pseudoheader* pseudoheader = (udp_pseudoheader*)checksum_buffer;
+					udp_pseudoheader pseudoheader;
 
-					memcpy(pseudoheader->dst_ip, ip, 4);
-					memcpy(pseudoheader->src_ip, ip::get_ip(), 4);
-					pseudoheader->protocol = 0x11;
-					pseudoheader->zeros = 0;
-					pseudoheader->length = htons(size + sizeof(udp_header));
+					memcpy(pseudoheader.dst_ip, ip, 4);
+					memcpy(pseudoheader.src_ip, ip::get_ip(), 4);
+					pseudoheader.protocol = 0x11;
+					pseudoheader.zeros = 0;
+					pseudoheader.length = htons(size + sizeof(udp_header));
 
-					memcpy(checksum_buffer + sizeof(udp_pseudoheader), &header, sizeof(udp_header));
-					memcpy(checksum_buffer + sizeof(udp_pseudoheader) + sizeof(udp_header), buffer, size);
-
-					uint16_t checksum = compute_checksum(checksum_buffer, size + sizeof(udp_header) + sizeof(udp_pseudoheader));
-
-					delete[] checksum_buffer;
+					uint16_t checksum = compute_checksum(pseudoheader, header, buffer, size);
 
 					header.checksum = checksum;
 
@@ -100,9 +94,23 @@ namespace nosok {
 					sockets[ntohs(header->dst_port)]->got_packet = true;
 				}
 
-				uint16_t compute_checksum(void* buffer, unsigned int len) {
+				uint16_t compute_checksum(udp_pseudoheader pseudoheader, udp_header header, void* buffer, unsigned int len) {
 					uint32_t checksum = 0;
+					uint16_t* header_ptr = (uint16_t*)&header;
+					uint16_t* pseudoheader_ptr = (uint16_t*)&pseudoheader;
 					uint16_t* ptr = (uint16_t*)buffer;
+
+					for (int i = 0; i < (sizeof(udp_pseudoheader) / 2); i++) {
+						checksum += pseudoheader_ptr[i];
+						if (checksum & 0x10000)
+							checksum = (checksum & 0xffff) + 1;
+					}
+
+					for (int i = 0; i < (sizeof(udp_header) / 2); i++) {
+						checksum += header_ptr[i];
+						if (checksum & 0x10000)
+							checksum = (checksum & 0xffff) + 1;
+					}
 
 					while (len > 1) {
 						checksum += *(ptr++);

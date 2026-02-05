@@ -6,21 +6,13 @@ namespace nosok {
 
 	Device* driver_registry[1024];
 
-	Device::Device() {
+	Device::Device() {}
 
-	}
+	Device::~Device() {}
 
-	Device::~Device() {
+	void Device::init() {}
 
-	}
-
-	void Device::init() {
-
-	}
-
-	void Device::irq() {
-
-	}
+	void Device::irq() {}
 
 	int total_drivers = 0;
 
