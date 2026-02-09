@@ -51,10 +51,10 @@ extern "C" void kmain(bootloader_info* boot_info) {
 		}
 	}
 
-	nosok::net::init();
-	nosok::net::arp::init();
-	nosok::net::ip::udp::init();
-	nosok::net::ip::dhcp::init();
+	//nosok::net::init();
+	//nosok::net::arp::init();
+	//nosok::net::ip::udp::init();
+	//nosok::net::ip::dhcp::init();
 
 	while(1);
 

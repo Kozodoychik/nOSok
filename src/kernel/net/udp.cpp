@@ -3,6 +3,7 @@
 #include <std/string.h>
 #include <std/inet.hpp>
 #include <std/printf.hpp>
+#include <std/atomic.hpp>
 #include <memory/alloc.hpp>
 
 namespace nosok {
@@ -41,12 +42,11 @@ namespace nosok {
 					
 					//nosok::io::printf("%x\n", this->got_packet);
 
-					while (!this->got_packet) {
-						asm volatile ("sti\nhlt\ncli");
+					while (!this->got_packet.load(__ATOMIC_ACQUIRE)) {
+						asm volatile ("hlt");
 					}
-					asm volatile("sti");
 
-					nosok::io::printf("%x\n", this->got_packet);
+					//this->got_packet.store(false, __ATOMIC_RELEASE);
 
 					this->got_packet = false;
 
@@ -94,7 +94,7 @@ namespace nosok {
 
 					if (sockets[ntohs(header->dst_port)] == 0) return;
 
-					sockets[ntohs(header->dst_port)]->got_packet = true;
+					sockets[ntohs(header->dst_port)]->got_packet.store(true, __ATOMIC_RELEASE);
 					sockets[ntohs(header->dst_port)]->recv_buffer = (void*)((uint32_t)buffer + sizeof(udp_header));
 				}
 

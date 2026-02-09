@@ -37,11 +37,7 @@ namespace nosok {
 			}
 
 			void handle_packet(void* buffer) {
-				nosok::io::printf("Got an IP packet!\n");
-
 				ipv4_header* header = (ipv4_header*)buffer;
-
-				nosok::io::printf("Protocol: %x\n", header->protocol);
 
 				switch (header->protocol) {
 					case IP_PROTO_UDP: {

@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <std/atomic.hpp>
 
 namespace nosok {
 	namespace net {
@@ -32,7 +33,7 @@ namespace nosok {
 					uint16_t port;
 
 					void* recv_buffer;
-					volatile bool got_packet = false;
+					Atomic<bool> got_packet;
 				};
 
 				void init();
