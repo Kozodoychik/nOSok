@@ -19,9 +19,16 @@
 
 extern uint32_t stack_end;
 
+
 void test() {
 	while(1) {
-		nosok::io::printf("b");
+		nosok::io::printf("Hello from thread No2\n");
+	}
+}
+
+void test2() {
+	while(1) {
+		nosok::io::printf("Hello from thread No3\n");
 	}
 }
 
@@ -67,9 +74,10 @@ extern "C" void kmain(bootloader_info* boot_info) {
 	nosok::cpu::interrupts::unmask_irq(0);
 
 	nosok::tasks::create((void*)test);
+	nosok::tasks::create((void*)test2);
 
 	while(1) {
-		nosok::io::printf("a");
+		nosok::io::printf("Hello from thread No1\n");
 	}
 
 	return;
