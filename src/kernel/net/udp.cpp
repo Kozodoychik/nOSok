@@ -46,7 +46,7 @@ namespace nosok {
 						asm volatile ("hlt");
 					}
 
-					//this->got_packet.store(false, __ATOMIC_RELEASE);
+					this->got_packet.store(false, __ATOMIC_RELEASE);
 
 					this->got_packet = false;
 

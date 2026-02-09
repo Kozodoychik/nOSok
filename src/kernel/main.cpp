@@ -14,9 +14,16 @@
 #include <net/arp.hpp>
 #include <net/udp.hpp>
 #include <net/dhcp.hpp>
+#include <task/taskmgr.hpp>
 
 
 extern uint32_t stack_end;
+
+void test() {
+	while(1) {
+		nosok::io::printf("b");
+	}
+}
 
 extern "C" void kmain(bootloader_info* boot_info) {
 	nosok::mem::frames::init();
@@ -51,12 +58,19 @@ extern "C" void kmain(bootloader_info* boot_info) {
 		}
 	}
 
-	//nosok::net::init();
-	//nosok::net::arp::init();
-	//nosok::net::ip::udp::init();
-	//nosok::net::ip::dhcp::init();
+	/*nosok::net::init();
+	nosok::net::arp::init();
+	nosok::net::ip::udp::init();
+	nosok::net::ip::dhcp::init();*/
 
-	while(1);
+	nosok::tasks::init();
+	nosok::cpu::interrupts::unmask_irq(0);
+
+	nosok::tasks::create((void*)test);
+
+	while(1) {
+		nosok::io::printf("a");
+	}
 
 	return;
 }

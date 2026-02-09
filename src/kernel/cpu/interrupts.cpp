@@ -3,6 +3,7 @@
 #include <drivers/devices.hpp>
 #include <std/printf.hpp>
 #include <cpu/regs.hpp>
+#include <task/taskmgr.hpp>
 
 extern "C" void isr_2();
 extern "C" void isr_6();
@@ -158,4 +159,8 @@ extern "C" void isr_handler(uint32_t i, regs_t regs) {
 		regs.eip, regs.cs, regs.eflags, regs.eax, regs.ebx, regs.ecx, regs.edx, regs.edi, regs.esi, regs.ebp, regs.esp, regs.ds, regs.es, regs.fs, regs.gs);
 
 	asm volatile ("cli\nhlt");
+}
+
+extern "C" void context_switch_handler() {
+	nosok::tasks::switch_task();
 }

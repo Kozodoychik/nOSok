@@ -2,6 +2,8 @@
 extern irq_handler
 extern isr_handler
 
+extern context_switch_handler
+
 %macro IRQ 1
 	global irq_%1
 	irq_%1:
@@ -55,7 +57,12 @@ extern isr_handler
 		iret
 %endmacro
 
-%assign i 32
+global irq_32
+irq_32:
+	call context_switch_handler
+	iret
+
+%assign i 33
 %rep 16
 	IRQ i
 	%assign i i+1
