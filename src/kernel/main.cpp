@@ -50,7 +50,7 @@ extern "C" void kmain(bootloader_info* boot_info) {
 
 	nosok::devices::pci::init();
 
-	nosok::io::printf("w: 0x%x, h: 0x%x, bpp 0x%x\n", boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp);
+	nosok::io::printf("w: %d, h: %d, bpp %d\n", boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp);
 
 	nosok::io::printf("PCI devices:\n");
 	
