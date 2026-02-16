@@ -4,6 +4,7 @@
 #include <std/printf.hpp>
 #include <cpu/regs.hpp>
 #include <task/taskmgr.hpp>
+#include <debug/bochs.hpp>
 
 extern "C" void isr_2();
 extern "C" void isr_6();
@@ -133,6 +134,7 @@ extern "C" void irq_handler(uint32_t i) {
 
 extern "C" void isr_handler(uint32_t i, regs_t regs) {
 	nosok::io::printf("Something went wrong...\n");
+	nosok::debug::bochs_print("Something went wrong...\n");
 	switch (i) {
 		case 0x06: {
 			nosok::io::printf("EXCEPTION: 0x06 - Invalid opcode\n");
@@ -155,12 +157,10 @@ extern "C" void isr_handler(uint32_t i, regs_t regs) {
 			break;
 		}
 	}
-	nosok::io::printf("\neip=0x%8x cs=0x%4x\neflags=0x%8x\neax=0x%8x ebx=0x%8x ecx=0x%8x edx=0x%8x\nedi=0x%8x esi=0x%8x ebp=0x%8x esp=0x%8x\nds=0x%4x\nes=0x%4x\nfs=0x%4x\ngs=0x%4x\n", \
-		regs.eip, regs.cs, regs.eflags, regs.eax, regs.ebx, regs.ecx, regs.edx, regs.edi, regs.esi, regs.ebp, regs.esp, regs.ds, regs.es, regs.fs, regs.gs);
+	nosok::io::printf("\neip=0x%8x cs=0x%4x\neflags=0x%8x\neax=0x%8x ebx=0x%8x ecx=0x%8x edx=0x%8x\nedi=0x%8x esi=0x%8x ebp=0x%8x esp=0x%8x\nds=0x%4x\nes=0x%4x\nfs=0x%4x\ngs=0x%4x\n\ncr2=0x%4x\n", \
+		regs.eip, regs.cs, regs.eflags, regs.eax, regs.ebx, regs.ecx, regs.edx, regs.edi, regs.esi, regs.ebp, regs.esp, regs.ds, regs.es, regs.fs, regs.gs, regs.cr2);
 
+	nosok::io::ports::write16(0x8a00, 0x8a00);
+	nosok::io::ports::write16(0x8a00, 0x8ae0);
 	asm volatile ("cli\nhlt");
-}
-
-extern "C" void context_switch_handler() {
-	nosok::tasks::switch_task();
 }

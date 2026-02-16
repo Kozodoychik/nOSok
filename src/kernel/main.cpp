@@ -15,6 +15,7 @@
 #include <net/udp.hpp>
 #include <net/dhcp.hpp>
 #include <task/taskmgr.hpp>
+#include <debug/bochs.hpp>
 
 
 extern uint32_t stack_end;
@@ -36,6 +37,7 @@ extern "C" void kmain(bootloader_info* boot_info) {
 	nosok::mem::frames::init();
 	nosok::mem::paging::init();
 	nosok::mem::heap_allocator_init((void*)&stack_end, 0xffffffff);
+	nosok::debug::bochs_print("nOSok is booting...\n");
 
 	nosok::video::init(boot_info->display_info.fb, boot_info->display_info.w, boot_info->display_info.h, boot_info->display_info.bpp, boot_info->display_info.pitch);
 	nosok::video::clear();

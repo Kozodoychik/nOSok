@@ -2,7 +2,7 @@
 extern irq_handler
 extern isr_handler
 
-extern context_switch_handler
+extern switch_context
 
 %macro IRQ 1
 	global irq_%1
@@ -22,11 +22,14 @@ extern context_switch_handler
 		push es
 		push fs
 		push gs
+		mov eax, cr2
+		push eax
 
 		push %1
 		call isr_handler
 
 		add esp, 4
+		pop eax
 		pop gs
 		pop fs
 		pop es
@@ -44,11 +47,14 @@ extern context_switch_handler
 		push es
 		push fs
 		push gs
+		mov eax, cr2
+		push eax
 
 		push %1
 		call isr_handler
 
 		add esp, 4
+		pop eax
 		pop gs
 		pop fs
 		pop es
@@ -59,7 +65,10 @@ extern context_switch_handler
 
 global irq_32
 irq_32:
-	call context_switch_handler
+	xchg bx, bx
+	cli
+	call switch_context
+	sti
 	iret
 
 %assign i 33

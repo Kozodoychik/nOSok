@@ -9,7 +9,7 @@ namespace nosok {
         void init();
 
         void create(void* entry);
-        void switch_task();
+        extern "C" void switch_task();
 
     }
 }

@@ -40,7 +40,7 @@ namespace nosok {
 
 				void* UDPSocket::recv() {
 					
-					//nosok::io::printf("%x\n", this->got_packet);
+					nosok::io::printf("%x\n", this->got_packet);
 
 					while (!this->got_packet.load(__ATOMIC_ACQUIRE)) {
 						asm volatile ("hlt");

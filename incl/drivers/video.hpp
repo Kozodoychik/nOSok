@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#define VGA_FRAMEBUFFER_BASE 0xD0000000
+#define VGA_FRAMEBUFFER_BASE 0xe0000000
 
 #define VGA_CHAR_HEIGHT 16
 
