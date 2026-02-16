@@ -6,7 +6,6 @@ namespace nosok {
 	namespace io {
 
 		void printf(const char* fmt, ...) {
-			asm volatile("cli");
 			uint32_t va_args = (uint32_t)&fmt + sizeof(char*);
 
 			for (const char* c = fmt; *c != 0; c++) {
@@ -39,7 +38,6 @@ namespace nosok {
 						nosok::video::putc(*c);
 				}
 			}
-			asm volatile("sti");
 		}
 
 		char hex_digits[17] = "0123456789abcdef";

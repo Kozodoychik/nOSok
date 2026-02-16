@@ -62,7 +62,7 @@ extern "C" void kmain(bootloader_info* boot_info) {
 				
 				if (header.vendor_id == 0 || header.vendor_id == 0xffff) continue;
 
-				nosok::io::printf(" [%x:%x:%x] vendor_id=%x device_id=%x\n", bus, device, function, header.vendor_id, header.device_id);
+				nosok::io::printf(" [0x%1x:0x%1x:0x%1x] vendor_id=%x device_id=%x\n", bus, device, function, header.vendor_id, header.device_id);
 			}
 		}
 	}
@@ -75,8 +75,8 @@ extern "C" void kmain(bootloader_info* boot_info) {
 	nosok::tasks::init();
 	nosok::cpu::interrupts::unmask_irq(0);
 
-	nosok::tasks::create((void*)test);
-	nosok::tasks::create((void*)test2);
+	//nosok::tasks::create((void*)test);
+	//nosok::tasks::create((void*)test2);
 
 	while(1) {
 		nosok::io::printf("Hello from thread No1\n");
