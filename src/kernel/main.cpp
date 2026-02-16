@@ -67,16 +67,16 @@ extern "C" void kmain(bootloader_info* boot_info) {
 		}
 	}
 
-	/*nosok::net::init();
+	nosok::net::init();
 	nosok::net::arp::init();
 	nosok::net::ip::udp::init();
-	nosok::net::ip::dhcp::init();*/
+	nosok::net::ip::dhcp::init();
 
 	nosok::tasks::init();
 	nosok::cpu::interrupts::unmask_irq(0);
 
-	//nosok::tasks::create((void*)test);
-	//nosok::tasks::create((void*)test2);
+	nosok::tasks::create((void*)test);
+	nosok::tasks::create((void*)test2);
 
 	while(1) {
 		nosok::io::printf("Hello from thread No1\n");

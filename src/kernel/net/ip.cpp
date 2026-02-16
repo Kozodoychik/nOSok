@@ -41,7 +41,7 @@ namespace nosok {
 
 				switch (header->protocol) {
 					case IP_PROTO_UDP: {
-						nosok::net::ip::udp::handle_packet(buffer + sizeof(ipv4_header));
+						nosok::net::ip::udp::handle_packet((void*)((uint32_t)buffer + sizeof(ipv4_header)));
 						break;
 					}
 				}

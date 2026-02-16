@@ -63,20 +63,20 @@ extern switch_context
 		iret
 %endmacro
 
+; Прерывание PIT для смены контекста
 global irq_32
 irq_32:
-	xchg bx, bx
-	cli
 	call switch_context
-	sti
 	iret
 
+; IRQ
 %assign i 33
 %rep 16
 	IRQ i
 	%assign i i+1
 %endrep
 
+; Исключения
 ISR_WITHOUT_CODE	0
 ISR_WITHOUT_CODE	1
 ISR_WITHOUT_CODE	2

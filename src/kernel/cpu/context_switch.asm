@@ -4,6 +4,7 @@ global switch_context
 extern current_task
 
 switch_context:
+    cli
     push eax
     push ebx
     push ecx
@@ -25,7 +26,6 @@ switch_context:
 
     mov eax, 0x20
 	out 0x20, al
-	out 0xa0, al
 
     pop ebp
     pop edi
@@ -34,5 +34,5 @@ switch_context:
     pop ecx
     pop ebx
     pop eax
-
+    sti
     ret

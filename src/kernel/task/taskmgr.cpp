@@ -28,7 +28,7 @@ namespace nosok {
 
         void create(void* entry) {
             asm volatile ("cli");
-            void* stack = nosok::mem::kmalloc(8192);
+            void* stack = nosok::mem::kmalloc(4096);
 
             task_context* task = new task_context;
 
@@ -37,7 +37,6 @@ namespace nosok {
             task->next = tasks_start;
 
             uint32_t* sp = (uint32_t*)stack + 4096;
-            uint32_t jmp_sp = (uint32_t)sp;
             *sp-- = 0x08;
             *sp-- = (uint32_t)entry;
             *sp-- = 0x0;
